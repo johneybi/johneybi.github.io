@@ -1,34 +1,75 @@
-name: GitHub Pages
+# Blowfish 테마를 위한 가장 안정적인 최신 GitHub Actions 워크플로우
+name: Deploy Blowfish Site to GitHub Pages
 
 on:
+  # 'main' 브랜치에 push 될 때마다 실행됩니다.
   push:
-    branches:
-      - main
+    branches: ["main"]
+
+  # Actions 탭에서 수동으로 실행할 수도 있습니다.
+  workflow_dispatch:
+
+# 배포를 위한 권한 설정
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 동시 배포 방지
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  build-deploy:
-    runs-on: ubuntu-24.04
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+  build:
+    runs-on: ubuntu-latest
     steps:
+      # 1. Hugo Extended 버전을 설치합니다.
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3 # 안정적인 v3 버전 사용
+        with:
+          hugo-version: 'latest'
+          extended: true
+
+      # 2. 저장소 코드를 내려받습니다. (테마 포함)
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
           fetch-depth: 0
 
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
+      # 3. ★★★★★ 이 부분이 핵심입니다 ★★★★★
+      #    Tailwind CSS 빌드에 필요한 Node.js 도구들을 설치합니다.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          hugo-version: "latest"
+          node-version: '20' # LTS 버전 명시
+      - name: Install Theme Dependencies
+        run: cd themes/blowfish && npm install
 
-      - name: Build
-        run: hugo --minify
+      # 4. GitHub Pages 배포 환경을 설정합니다.
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
 
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.ref == 'refs/heads/main' }}
+      # 5. Hugo로 사이트를 최종 빌드합니다.
+      - name: Build with Hugo
+        run: hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+
+      # 6. 빌드 결과물(public 폴더)을 업로드합니다.
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ./public
+          path: ./public
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # 7. 업로드된 결과물을 GitHub Pages에 배포합니다.
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
