@@ -1,4 +1,4 @@
-# Hugo Blowfish 테마를 위한 최종 GitHub Pages 배포 워크플로우
+# Hugo Blowfish 테마를 위한 가장 이상적이고 간단한 최종 워크플로우
 name: Deploy Hugo site to GitHub Pages
 
 on:
@@ -29,38 +29,29 @@ jobs:
         uses: peaceiris/actions-hugo@v3
         with:
           hugo-version: 'latest'
-          extended: true
+          extended: true # ★ Hugo의 자동 빌드 기능 활성화
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install Theme Dependencies
-        run: cd themes/blowfish && npm install
-
-      - name: Build Tailwind CSS (Manual Step)
-        run: |
-          cd themes/blowfish
-          npx tailwindcss -c ./tailwind.config.js -i ./assets/css/main.css -o ../../assets/css/compiled/main.css --minify
+      # ★ Hugo가 Tailwind를 사용하려면 이 패키지들이 필요합니다.
+      #   이제 프로젝트 루트에 package.json을 두고 관리하는 것이 좋습니다.
+      - name: Install Dependencies
+        run: npm install tailwindcss postcss autoprefixer
 
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
 
+      # ★ 이제 Hugo가 Tailwind 컴파일과 사이트 빌드를 모두 자동으로 처리합니다.
       - name: Build with Hugo
-        run: hugo --baseURL "${{ steps.pages.outputs.base_url }}/"
+        run: hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
 
-      - name: Upload artifact for deployment
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./public
-
-      # 디버깅을 위해 빌드 결과물을 별도로 저장하는 단계
-      - name: Upload artifact for debugging
-        uses: actions/upload-artifact@v4
-        with:
-          name: github-pages-build-result
           path: ./public
 
   deploy:
