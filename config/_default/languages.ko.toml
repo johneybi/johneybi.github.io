@@ -1,0 +1,24 @@
+languageCode = "ko"
+languageName = "Korean"
+weight = 1
+title = "Designer ESK"
+
+[params]
+  displayName = "KO"
+  isoCode = "ko"
+  rtl = false
+  # logo = "img/logo.png"
+  description = "Designer ESK"
+  copyright = "© 2025, 은석기 All right reserved"
+  dateFormat = "2006 JANUARY 2"
+
+[params.author]
+  name = "은석기"
+  image = "img/avatar.png"
+  headline = "This is my website with my links"
+  bio = "A little bit about you"
+   links = [
+     { link = "https://nunocoracao.github.io/blowfish/" },
+     { github = "https://github.com/nunocoracao/blowfish" },
+     { x-twitter = "https://twitter.com/burufugu" }
+   ]

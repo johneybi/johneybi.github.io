@@ -3,8 +3,8 @@
 # https://nunocoracao.github.io/blowfish/docs/getting-started/
 
 theme = "blowfish"
-baseURL = "/"
-defaultContentLanguage = "en"
+baseURL = "https://johneybi.github.io/"
+defaultContentLanguage = "ko"
 
 enableRobotsTXT = true
 pagersize = 20
