@@ -1,0 +1,19 @@
+{{ define "main" }}
+
+<div class="w-full h-[680px] flex justify-center items-center">
+  {{/* 'assets' 폴더의 이미지를 변수로 가져오기 */}}
+  {{ $image := resources.Get "img/product_and_product.svg" }}
+
+  {{/* 이미지가 존재하는지 확인 후 출력 */}}
+  {{ if $image }}
+    <img src="{{ $image.RelPermalink }}" alt="product and product">
+  {{ end }}
+</div>
+
+  {{ $partial := print "home/" .Site.Params.homepage.layout ".html" }}
+  {{ if templates.Exists ( printf "partials/%s" $partial ) }}
+    {{ partial $partial . }}
+  {{ else }}
+    {{ partial "home/profile.html" . }}
+  {{ end }}
+{{ end }}
