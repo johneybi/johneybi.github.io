@@ -39,18 +39,17 @@ jobs:
       - name: Install Theme Dependencies
         run: cd themes/blowfish && npm install
 
-      # ★★★★★ 이 부분이 추가되었습니다 ★★★★★
-      # 로컬에서 성공했던 수동 Tailwind 빌드 명령어를 그대로 실행하여
-      # assets/css/compiled/main.css 파일을 생성합니다.
+      # ★★★★★ 이 부분이 수정되었습니다 ★★★★★
       - name: Build Tailwind CSS (Manual Step)
-        run: npx tailwindcss -c ./themes/blowfish/tailwind.config.js -i ./themes/blowfish/assets/css/main.css -o ./assets/css/compiled/main.css --minify
+        run: |
+          cd themes/blowfish
+          npx tailwindcss -c ./tailwind.config.js -i ./assets/css/main.css -o ../../assets/css/compiled/main.css --minify
 
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
 
       - name: Build with Hugo
-        # 이제 Hugo는 위 단계에서 미리 만들어진 CSS를 사용하여 사이트를 빌드합니다.
         run: hugo --baseURL "${{ steps.pages.outputs.base_url }}/"
 
       - name: Upload artifact
