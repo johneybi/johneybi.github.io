@@ -39,7 +39,6 @@ jobs:
       - name: Install Theme Dependencies
         run: cd themes/blowfish && npm install
 
-      # ★★★★★ 이 부분이 수정되었습니다 ★★★★★
       - name: Build Tailwind CSS (Manual Step)
         run: |
           cd themes/blowfish
@@ -52,17 +51,17 @@ jobs:
       - name: Build with Hugo
         run: hugo --baseURL "${{ steps.pages.outputs.base_url }}/"
 
-      - name: Upload artifact
+      - name: Upload artifact for deployment
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
 
-  # ★★★★★ 디버깅을 위해 이 단계를 추가합니다. ★★★★★
-      - name: Upload build artifact for debugging
+      # 디버깅을 위해 빌드 결과물을 별도로 저장하는 단계
+      - name: Upload artifact for debugging
         uses: actions/upload-artifact@v4
         with:
-        name: github-pages-build-result # 다운로드할 파일의 이름
-        path: ./public # public 폴더를 통째로 저장
+          name: github-pages-build-result
+          path: ./public
 
   deploy:
     runs-on: ubuntu-latest
