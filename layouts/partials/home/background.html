@@ -41,13 +41,13 @@
   </div>
 </div>
 
-<article class="prose dark:prose-invert max-w-full relative">
+<!-- <article class="prose dark:prose-invert max-w-full relative">
   <div class="relative">
     <div class="absolute inset-x-0 bottom-0 h-1/2"></div>
     <div class="mx-auto max-w-7xl p-0">
       <div class="relative sm:overflow-hidden">
           
-          <!-- 기존 이미지 변수들 유지 (표시는 안하지만 변수 오류 방지) -->
+          기존 이미지 변수들 유지 (표시는 안하지만 변수 오류 방지)
           {{ $homepageImage := "" }}
           {{ with .Site.Params.defaultBackgroundImage }}
             {{ if or (strings.HasPrefix . "http:") (strings.HasPrefix . "https:") }}
@@ -117,7 +117,7 @@
       </div>
     </div>
   </div>
-</article>
+</article> -->
 <section>
   {{ partial "recent-articles/main.html" . }}
 </section>
