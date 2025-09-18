@@ -57,6 +57,13 @@ jobs:
         with:
           path: ./public
 
+  # ★★★★★ 디버깅을 위해 이 단계를 추가합니다. ★★★★★
+      - name: Upload build artifact for debugging
+        uses: actions/upload-artifact@v4
+        with:
+        name: github-pages-build-result # 다운로드할 파일의 이름
+        path: ./public # public 폴더를 통째로 저장
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
