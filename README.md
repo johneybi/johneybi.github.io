@@ -1,6 +1,9 @@
-# Blowfish - Artist Template
-This is a template for the Blowfish Hugo Theme. Feel free to use this repo as a quick way to get started with Blowfish. Please visit [Blowfish's main website](https://github.com/nunocoracao/blowfish) to read the complete documentation.
+How to use
 
-The template was built using the [Git option](https://nunocoracao.github.io/blowfish/docs/installation/#install-using-git) from Blowfish's installations instructions.
+npx tailwindcss -c ./themes/blowfish/tailwind.config.js \
+  -i ./themes/blowfish/assets/css/main.css \
+  -o ./assets/css/compiled/main.css -w
 
-![blowfish logo](https://github.com/nunocoracao/blowfish_artist/blob/main/logo.png?raw=true)
+루트에서 실행해야 루트의 layouts 폴더 포함.
+
+WSL에서 돌리는게 정신건강에 이로움. Windows에서 절대 안되는건 아니지만 고칠데도 많고 잘 돌아가 안돌아가다 너무 불안정함.

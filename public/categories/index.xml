@@ -2,29 +2,29 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on Designer ESK</title>
-    <link>http://localhost:1313/categories/</link>
+    <link>http://localhost:34271/categories/</link>
     <description>Recent content in Categories on Designer ESK</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ko</language>
     <copyright>© 2025, 은석기 All right reserved</copyright>
-    <lastBuildDate>Sun, 04 Sep 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 04 Sep 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:34271/categories/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Blog</title>
-      <link>http://localhost:1313/categories/blog/</link>
+      <link>http://localhost:34271/categories/blog/</link>
       <pubDate>Sun, 04 Sep 2022 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/categories/blog/</guid>
+      <guid>http://localhost:34271/categories/blog/</guid>
       <description></description>
       
     </item>
     
     <item>
       <title>Post</title>
-      <link>http://localhost:1313/categories/post/</link>
+      <link>http://localhost:34271/categories/post/</link>
       <pubDate>Sun, 04 Sep 2022 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/categories/post/</guid>
+      <guid>http://localhost:34271/categories/post/</guid>
       <description></description>
       
     </item>
