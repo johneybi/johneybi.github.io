@@ -14,39 +14,45 @@
   name = "About"
   pageRef = "about"
   weight = 10
+  [main.params]
+    type = "page"
 
 [[main]]
   name = "Portfolio"
   pageRef = "Portfolio"
   weight = 20
+  [main.params]    # 이 부분 들여쓰기 수정
+    type = "page"
 
 [[main]]
   name = "Posts"
   pageRef = "posts"
   weight = 30
+  [main.params]    # 이 부분 들여쓰기 수정
+    type = "page"
 
 [[main]]
   name = "Tags"
   pageRef = "tags"
   weight = 40
-
-# [[main]]
-#  identifier = "web"
-#  pre = "link"
-#  url = "https://nunocoracao.github.io/blowfish/"
-#  weight = 40
+  [main.params]    # 이 부분 들여쓰기 수정
+    type = "page"
 
 [[main]]
   identifier = "github"
   pre = "github"
   url = "https://github.com/nunocoracao/blowfish"
   weight = 50
+  [main.params]    # 추가
+    type = "icon"
 
 [[main]]
   identifier = "twitter"
   pre = "twitter"
   url = "https://twitter.com/burufugu"
   weight = 60
+  [main.params]    # 추가
+    type = "icon"
 
 
 # -- Footer Menu --
