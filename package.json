@@ -4,9 +4,9 @@
   "description": "Blowfish Template",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development cd themes/blowfish && npx tailwindcss -c ./tailwind.config.js -i ./assets/css/main.css -o ../../assets/css/main.css -w",
+    "dev": "npx tailwindcss -c ./themes/blowfish/tailwind.config.js -i ./themes/blowfish/assets/css/main.css -o ./assets/css/compiled/main.css -w --poll",
     "build": "cross-env NODE_ENV=production cd themes/blowfish && npx tailwindcss -c ./tailwind.config.js -i ./assets/css/main.css -o ../../assets/css/main.css --minify",
-    "server": "hugo server"
+    "server": "hugo server --poll=700ms"
   },
   "repository": {
     "type": "git",

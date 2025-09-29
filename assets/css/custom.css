@@ -1,10 +1,107 @@
 @font-face {
   font-family: 'Pretendard Variable';
-  font-weight: 45 920; /* Variable font 범위 */
+  font-weight: 45 920;
+  /* Variable font 범위 */
   font-style: normal;
   src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
 }
 
 html {
   font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+}
+
+.full-width-bg {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 880px;
+  contain: strict;
+  z-index: -50;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.herobase {
+  background: linear-gradient(90deg, #000 5%, #b6a498 70%);
+  z-index: 1;
+}
+
+.interactive-svg-background {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2474px;
+  height: 1541px;
+  transform-origin: center;
+  will-change: transform;
+  transform: translate3d(calc(-50% + var(--x-offset, 10vw)),
+      calc(-50% + var(--y-offset, 15vw)),
+      0) scale(1.8) rotate(var(--mouse-angle, 0deg));
+  z-index: 2;
+  /* 🔥 컨테이너 레벨 블러 테스트 */
+  filter: blur(120px);
+}
+
+.hero-container {
+  /* 이 요소에는 특별한 스타일이 필요 없습니다. 기본값으로 둡니다. */
+  width: 100vw;
+  height: 880px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 3;
+}
+
+.bisque-elipse {
+  border-radius: 50%;
+  background: #b6a498;
+  filter: blur(140px);
+  z-index: 4;
+}
+
+.main-elipse {
+  border-radius: 50%;
+  background: #eee3df;
+  filter: blur(60px);
+  z-index: 4;
+}
+
+.pattern-overlay {
+  background-image: url('/img/grain.png');
+  background-size: 180px auto;
+  background-repeat: repeat;
+  mix-blend-mode: color-burn;
+  opacity: 0.3;
+  z-index: 5;
+}
+
+#mouse-capture-area {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* 다른 배경 요소들(z-index: 1~5)보다 확실히 위에 있도록 설정 */
+  z-index: 99;
+}
+
+.hero-text {
+  display: flex;
+  height: 48px;
+  justify-content: space-between;
+  align-items: flex-end;
+  align-self: stretch;
+  border-top: 1px solid;
+}
+
+.hero-text>span {
+  font-weight: 200;
+}
+
+.hero-text>span>.medium,
+.hero-text>.medium {
+  font-weight: 500;
 }

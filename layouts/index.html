@@ -1,19 +1,26 @@
 {{ define "main" }}
 
-<div class="w-full h-[680px] flex justify-center items-center">
+<div class="">
   {{/* 'assets' 폴더의 이미지를 변수로 가져오기 */}}
-  {{ $image := resources.Get "img/product_and_product.svg" }}
+  {{ $image := resources.Get "img/product_product.svg" }}
 
   {{/* 이미지가 존재하는지 확인 후 출력 */}}
   {{ if $image }}
-    <img src="{{ $image.RelPermalink }}" alt="product and product">
+  <img src="{{ $image.RelPermalink }}" alt="product and product" class="mt-[length:438px] w-full max-w-[length:1200px]">
   {{ end }}
+  <div class="flex h-12 bottom-20 justify-between items-end self-stretch border-t border-solid border-white text-white font-extralight">
+    <span>Industrial <span class="font-medium">Product</span></span>
+    <span class="font-medium">+</span>
+    <span>Digital <span class="font-medium">Product</span></span>
+    <span class="font-medium">=</span>
+    <span>Blending the gap between both world</span>
+  </div>
 </div>
 
-  {{ $partial := print "home/" .Site.Params.homepage.layout ".html" }}
-  {{ if templates.Exists ( printf "partials/%s" $partial ) }}
-    {{ partial $partial . }}
-  {{ else }}
-    {{ partial "home/profile.html" . }}
-  {{ end }}
+{{ $partial := print "home/" .Site.Params.homepage.layout ".html" }}
+{{ if templates.Exists ( printf "partials/%s" $partial ) }}
+{{ partial $partial . }}
+{{ else }}
+{{ partial "home/profile.html" . }}
+{{ end }}
 {{ end }}

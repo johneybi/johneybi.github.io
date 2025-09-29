@@ -1,45 +1,106 @@
 {{ $disableImageOptimization := .Site.Params.disableImageOptimization | default false }}
 <style>
-  @keyframes gradient-shift {
-    0% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%;
-    }
-  }
-  .animate-gradient {
-    animation: gradient-shift 12s ease infinite;
-  }
-  body {
-    overflow-x: hidden;
-  }
-  .full-width-bg {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100vw;
-    height: 800px;
-    z-index: -50;
-  }
+
+
 </style>
 
-<!-- 애니메이션 그라디언트 배경을 body 레벨에서 처리 -->
-<div class="full-width-bg">
-  <div class="absolute inset-0 bg-gradient-to-br from-accent-400 via-indigo-500 to-cyan-500 animate-gradient bg-[length:400%_400%]">
+<div class="full-width-bg overflow-hidden relative">
+  <div class="absolute inset-0 herobase"></div>
+
+  <svg width="2474" height="1541" viewBox="-1000 -1000 4474 3541" fill="none" xmlns="http://www.w3.org/2000/svg"
+    class="interactive-svg-background">
+    <g style="
+            transform-origin: 899px 557px;
+            transform: rotate(calc(var(--mouse-angle, 0deg) * -1));
+          ">
+      <ellipse cx="899" cy="557" rx="900" ry="601" fill="#B63C8E" opacity="0.7" />
+    </g>
+    <g style="
+            transform-origin: 1308px 785px;
+            transform: rotate(calc(var(--mouse-angle, 0deg) * -1));
+          ">
+      <ellipse cx="1308" cy="785" rx="656" ry="712" fill="#A89080" opacity="0.7" />
+    </g>
+    <g style="
+            transform-origin: 1627.14px 316.55px;
+            transform: rotate(calc(var(--mouse-angle, 0deg) * -1));
+          ">
+      <ellipse cx="1627.14" cy="316.55" rx="550" ry="320" fill="#FC6B3F" opacity="0.8" />
+    </g>
+    <g style="
+            transform-origin: 1032.5px 445.5px;
+            transform: rotate(calc(var(--mouse-angle, 0deg) * -1));
+          ">
+      <ellipse cx="1032.5" cy="445.5" rx="554.5" ry="339.5" fill="#FA292C" opacity="0.8" />
+    </g>
+    <g style="
+            transform-origin: 498px 975.5px;
+            transform: rotate(calc(var(--mouse-angle, 0deg) * -1));
+          ">
+      <ellipse cx="498" cy="975.5" rx="567" ry="209.5" fill="#406D82" opacity="0.8" />
+    </g>
+    <g style="
+            transform-origin: 441.985px 958.434px;
+            transform: rotate(calc(var(--mouse-angle, 0deg) * -1));
+          ">
+      <ellipse cx="441.985" cy="958.434" rx="786.985" ry="316.434" fill="#415E80" opacity="0.7" />
+    </g>
+    <defs>
+      <filter id="filter0_f_98_451" x="-396.554" y="-721.554" width="2591.11" height="2557.11"
+        filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="338.777" result="effect1_foregroundBlur_98_451" />
+      </filter>
+      <filter id="filter1_f_98_451" x="-25.5542" y="-604.554" width="2667.11" height="2779.11"
+        filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="338.777" result="effect1_foregroundBlur_98_451" />
+      </filter>
+      <filter id="filter2_f_98_451" x="447.518" y="-677.554" width="2359.24" height="1988.21"
+        filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="338.777" result="effect1_foregroundBlur_98_451" />
+      </filter>
+      <filter id="filter3_f_98_451" x="-199.554" y="-571.554" width="2464.11" height="2034.11"
+        filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="338.777" result="effect1_foregroundBlur_98_451" />
+      </filter>
+      <filter id="filter4_f_98_451" x="-746.554" y="88.4458" width="2489.11" height="1774.11"
+        filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="338.777" result="effect1_foregroundBlur_98_451" />
+      </filter>
+      <filter id="filter5_f_98_451" x="-1022.55" y="-35.5542" width="2929.08" height="1987.98"
+        filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="338.777" result="effect1_foregroundBlur_98_451" />
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="hero-container">
+    {{ $image1 := resources.Get "img/lefttop-wg2.png" }}
+    {{ if $image1 }}
+    <img src="{{ $image1.RelPermalink }}">
+    {{ end }}
+    {{ $image2 := resources.Get "img/rightbottom-wg1.png" }}
+    {{ if $image2 }}
+    <img src="{{ $image2.RelPermalink }}">
+    {{ end }}
   </div>
-  <!-- Overlay patterns -->
-  <div class="absolute inset-0 opacity-30">
-    <div class="absolute top-16 left-40 bg-white rounded-full w-96 h-96 mix-blend-overlay filter blur-3xl animate-pulse">
-    </div>
-    <div class="absolute bottom-16 right-40 bg-yellow-300 rounded-full w-96 h-96 mix-blend-overlay filter blur-3xl animate-pulse">
-    </div>
-  </div>
+  <div class="absolute w-[length:160%] h-[length:70%] top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bisque-elipse"></div>
+  <div class="absolute w-[length:85%] h-[length:25%] top-[length:-5%] left-1/2 -translate-x-1/2 -translate-y-1/2 main-elipse"></div>
+  <div class="absolute inset-0 pattern-overlay"></div>
+  <div id="mouse-capture-area"></div>
 </div>
+
 
 <!-- <article class="prose dark:prose-invert max-w-full relative">
   <div class="relative">
@@ -121,17 +182,21 @@
 <section>
   {{ partial "recent-articles/main.html" . }}
 </section>
+
+{{/* ★★★★★ inter-gradient.js 스크립트를 여기에 추가합니다 ★★★★★ */}}
+{{ $interGradient := resources.Get "js/inter-gradient.js" }}
+{{ if $interGradient }}
+  {{ $interGradient = $interGradient | js.Build | minify | fingerprint }}
+  <script src="{{ $interGradient.RelPermalink }}" integrity="{{ $interGradient.Data.Integrity }}" defer></script>
+{{ end }}
+
 {{ if .Site.Params.homepage.layoutBackgroundBlur | default false }}
-  <div
-    id="background-blur"
-    class="fixed opacity-0 inset-x-0 top-0 h-full single_hero_background nozoom backdrop-blur-2xl"></div>
-  {{ $backgroundBlur := resources.Get "js/background-blur.js" }}
-  {{ $backgroundBlur = $backgroundBlur | resources.Minify | resources.Fingerprint (.Site.Params.fingerprintAlgorithm | default "sha512") }}
-  <script
-    type="text/javascript"
-    src="{{ $backgroundBlur.RelPermalink }}"
-    integrity="{{ $backgroundBlur.Data.Integrity }}"
-    data-blur-id="background-blur"
-    data-image-id="background-image"
-    {{ if $homepageImage }}data-image-url="{{ $homepageImage.RelPermalink }}"{{ end }}></script>
+<div id="background-blur"
+  class="fixed opacity-0 inset-x-0 top-0 h-full single_hero_background nozoom backdrop-blur-2xl"></div>
+{{ $backgroundBlur := resources.Get "js/background-blur.js" }}
+{{ $backgroundBlur = $backgroundBlur | resources.Minify | resources.Fingerprint (.Site.Params.fingerprintAlgorithm |
+default "sha512") }}
+<script type="text/javascript" src="{{ $backgroundBlur.RelPermalink }}" integrity="{{ $backgroundBlur.Data.Integrity }}"
+  data-blur-id="background-blur" data-image-id="background-image" {{ if $homepageImage
+  }}data-image-url="{{ $homepageImage.RelPermalink }}" {{ end }}></script>
 {{ end }}
