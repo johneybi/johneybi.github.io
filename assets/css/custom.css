@@ -110,3 +110,30 @@ body {
 .hero-text>.medium {
   font-weight: 500;
 }
+
+.logo svg {
+    height: auto !important;  /* 원하는 크기 */
+    width: auto !important;   /* 비율 유지 */
+}
+
+.menuhide .flex-col a {
+    white-space: nowrap !important;
+}
+
+/* 화면 끝에 있는 메뉴 처리 */
+.nested-menu {
+    position: relative;
+}
+
+.nested-menu .menuhide {
+    position: absolute;
+    z-index: 50;
+    min-width: 150px;
+    white-space: nowrap;
+}
+
+/* 오른쪽 끝 메뉴들은 왼쪽으로 열리게 */
+nav > *:nth-last-child(-n+3) .menuhide {
+    right: 0;
+    left: auto;
+}

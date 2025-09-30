@@ -1,13 +1,13 @@
 languageCode = "ko"
 languageName = "Korean"
 weight = 1
-title = "Designer ESK"
+title = "ESK"
 
 [params]
   displayName = "KO"
   isoCode = "ko"
   rtl = false
-  # logo = "img/logo.png"
+  logo = "img/esk_logo.svg"
   description = "Designer ESK"
   copyright = "© 2025, 은석기 All right reserved"
   dateFormat = "2006 JANUARY 2"

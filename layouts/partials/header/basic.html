@@ -37,16 +37,7 @@
   {{ end }}
 </nav>
 <nav class="hidden md:flex items-center gap-x-5 md:ml-12 h-12">
-    {{ range .Site.Menus.main }}
-    {{ if or .Pre (and .Params (eq .Params.type "icon")) }}
-      {{ partial "header/header-option.html" . }}
-    {{ end }}
-  {{ end }}
-    {{ partial "translations.html" . }}
-    {{ if .Site.Params.enableA11y | default false }}
-      {{ template "HeaderA11y" (dict "prefix" "desktop-" "Site" .Site) }}
-    {{ end }}
-
+    {{/* 1. 검색 버튼 */}}
     {{ if .Site.Params.enableSearch | default false }}
       <button
         id="search-button"
@@ -57,6 +48,7 @@
       </button>
     {{ end }}
 
+    {{/* 2. 다크모드 스위처 */}}
     {{ if .Site.Params.footer.showAppearanceSwitcher | default false }}
       <div class="{{ if .Site.Params.footer.showScrollToTop | default true -}}{{- end }} flex items-center">
         <button
@@ -72,6 +64,21 @@
           </div>
         </button>
       </div>
+    {{ end }}
+
+    {{/* 3. 아이콘 메뉴들 (GitHub, Twitter 등) */}}
+    {{ range .Site.Menus.main }}
+      {{ if or .Pre (and .Params (eq .Params.type "icon")) }}
+        {{ partial "header/header-option.html" . }}
+      {{ end }}
+    {{ end }}
+
+    {{/* 4. 언어 선택 */}}
+    {{ partial "translations.html" . }}
+
+    {{/* 5. 접근성 옵션 (필요시) */}}
+    {{ if .Site.Params.enableA11y | default false }}
+      {{ template "HeaderA11y" (dict "prefix" "desktop-" "Site" .Site) }}
     {{ end }}
   </nav>
 {{ end }}
@@ -252,12 +259,12 @@
 
 {{/* ========== Render HTML ========== */}}
 <div
-  class="main-menu flex items-center justify-between px-4 py-6 sm:px-6 md:justify-start gap-x-3 pt-[2px] pr-0 pb-[3px] pl-0">
+  class="main-menu flex items-center justify-between px-4 py-6 xl:px-0 sm:px-6 md:justify-start gap-x-3 pt-[2px] pr-0 pb-[3px] pl-0">
   {{ template "HeaderLogo" . }}
   <div class="flex flex-1 items-center justify-between">
     <nav class="flex space-x-3">
       {{ if not .Site.Params.disableTextInHeader | default true }}
-        <a href="{{ "" | relLangURL }}" class="text-base font-medium">
+        <a href="{{ "" | relLangURL }}" class="text-base font-bold">
           {{ .Site.Title | markdownify }}
         </a>
       {{ end }}

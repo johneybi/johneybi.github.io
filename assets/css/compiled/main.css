@@ -1471,6 +1471,9 @@ body.zen-mode-enable {
   .w-full {
     width: 100%;
   }
+  .w-max {
+    width: max-content;
+  }
   .w-screen {
     width: 100vw;
   }
@@ -3307,6 +3310,11 @@ body.zen-mode-enable {
   .xl\:grid-cols-4 {
     @media (width >= 1280px) {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .xl\:px-0 {
+    @media (width >= 1280px) {
+      padding-inline: calc(var(--spacing) * 0);
     }
   }
   .xl\:px-28 {

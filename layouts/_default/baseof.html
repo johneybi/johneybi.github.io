@@ -15,12 +15,14 @@
   <body
     class="flex flex-col h-screen px-6 m-auto text-lg leading-7 xl:px-28 bg-neutral text-neutral-900 dark:bg-neutral-800 dark:text-neutral sm:px-14 md:px-14 lg:px-14 scrollbar-thin scrollbar-track-neutral-200 scrollbar-thumb-neutral-400 dark:scrollbar-track-neutral-800 dark:scrollbar-thumb-neutral-600">
     <div id="the-top" class="absolute flex self-center">
+      {{/* Skip to main 기능 제거
       <a
         class="px-3 py-1 text-sm -translate-y-8 rounded-b-lg bg-primary-200 focus:translate-y-0 dark:bg-neutral-600"
         href="#main-content">
         <span class="font-bold text-primary-600 pe-2 dark:text-primary-400">&darr;</span>
         {{ i18n "nav.skip_to_main" }}
       </a>
+      */}}
     </div>
     {{ $header := print "header/" site.Params.header.layout ".html" }}
     {{ if templates.Exists ( printf "partials/%s" $header ) }}
