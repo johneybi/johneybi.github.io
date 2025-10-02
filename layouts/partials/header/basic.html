@@ -15,7 +15,7 @@
               src="{{ $logo.RelPermalink }}"
               width="{{ div $logo.Width 2 }}"
               height="{{ div $logo.Height 2 }}"
-              class="logo max-h-[5rem] max-w-[5rem] object-scale-down object-left nozoom"
+              class="logo max-h-[2.5rem] w-auto object-scale-down object-left nozoom"
               alt="{{ .Site.Title }}">
           {{ end }}
         </a>
@@ -26,7 +26,7 @@
 
 {{/* Desktop navigation */}}
 {{ define "HeaderDesktopNavigation" }}
-  <nav class="hidden md:flex items-center gap-x-5 md:ml-12 h-12">
+  <nav class="hidden md:flex items-center absolute left-1/2 transform -translate-x-1/2 gap-x-8 h-12">
   {{ range .Site.Menus.main }}
     {{ if and .Params (eq .Params.type "page") }}
       {{ partial "header/header-option.html" . }}
@@ -36,7 +36,7 @@
     {{ end }}
   {{ end }}
 </nav>
-<nav class="hidden md:flex items-center gap-x-5 md:ml-12 h-12">
+<nav class="hidden md:flex items-center gap-x-5 h-12">
     {{/* 1. 검색 버튼 */}}
     {{ if .Site.Params.enableSearch | default false }}
       <button
@@ -259,7 +259,7 @@
 
 {{/* ========== Render HTML ========== */}}
 <div
-  class="main-menu flex items-center justify-between px-4 py-6 xl:px-0 sm:px-6 md:justify-start gap-x-3 pt-[2px] pr-0 pb-[3px] pl-0">
+  class="main-menu flex items-center justify-between py-6 md:justify-start gap-x-2 pt-[2px] pb-[3px] mt-4 -mb-4">
   {{ template "HeaderLogo" . }}
   <div class="flex flex-1 items-center justify-between">
     <nav class="flex space-x-3">

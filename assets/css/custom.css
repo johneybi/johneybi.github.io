@@ -74,6 +74,11 @@ body {
   z-index: 4;
 }
 
+.dark .main-elipse {
+  background: #625551;
+  width: 100%;
+}
+
 .pattern-overlay {
   background-image: url('/img/grain.png');
   background-size: 180px auto;
@@ -93,26 +98,8 @@ body {
   z-index: 99;
 }
 
-.hero-text {
-  display: flex;
-  height: 48px;
-  justify-content: space-between;
-  align-items: flex-end;
-  align-self: stretch;
-  border-top: 1px solid;
-}
-
-.hero-text>span {
-  font-weight: 200;
-}
-
-.hero-text>span>.medium,
-.hero-text>.medium {
-  font-weight: 500;
-}
-
 .logo svg {
-    height: auto !important;  /* 원하는 크기 */
+    height: 2.5rem !important;  /* 원하는 크기 */
     width: auto !important;   /* 비율 유지 */
 }
 
@@ -136,4 +123,36 @@ body {
 nav > *:nth-last-child(-n+3) .menuhide {
     right: 0;
     left: auto;
+}
+
+/* blur 요소에 트랜지션 설정 */
+#menu-blur {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0.75rem;
+
+}
+
+/* sticky 상태 스타일 */
+.is-sticky #menu-blur {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 헤더 전체 애니메이션 */
+.fixed.inset-x-0, .headnav {
+  transition: all 0.3s ease;
+}
+
+/* sticky 상태에서 - padding 대신 left/right 값 변경! */
+.is-sticky.fixed .headnav {
+  padding-left: 1rem !important;  /* inset-x-0을 덮어쓰기 */
+  padding-right: 1rem !important;
+  /* padding 사용하지 않음 */
+}
+
+@media (min-width: 640px) and (max-width: 1279px) {
+  .is-sticky {
+    margin-left: 1.5rem !important; 
+    margin-right: 1.5rem !important;
+    padding: 0rem; 
+  }
 }

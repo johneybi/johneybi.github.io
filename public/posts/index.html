@@ -47,8 +47,8 @@
   <link
     type="text/css"
     rel="stylesheet"
-    href="/css/main.bundle.min.2c7322559d9062e982a52bbb921548da0bc6506da220eb747f50894b42a257b7db315b771c7c993a06d4b51ae37d239e270c816a404f4699cef122c86ad451a1.css"
-    integrity="sha512-LHMiVZ2QYumCpSu7khVI2gvGUG2iIOt0f1CJS0KiV7fbMVt3HHyZOgbUtRrjfSOeJwyBakBPRpnO8SLIatRRoQ==">
+    href="/css/main.bundle.min.d1de9864b05eace98f678025773a4838f53521aff036ecbe8ed1abbb1d78e502f9813d5eb675528e604974ebabdd0db896368aee074b474e6e2ac7c408a66091.css"
+    integrity="sha512-0d6YZLBerOmPZ4AldzpIOPU1Ia/wNuy&#43;jtGrux145QL5gT1etnVSjmBJdOur3Q24ljaK7gdLR05uKsfECKZgkQ==">
 
   
   
@@ -214,7 +214,7 @@
   
 </head>
 <body
-    class="flex flex-col h-screen px-6 m-auto text-lg leading-7 xl:px-28 bg-neutral text-neutral-900 dark:bg-neutral-800 dark:text-neutral sm:px-14 md:px-14 lg:px-14 scrollbar-thin scrollbar-track-neutral-200 scrollbar-thumb-neutral-400 dark:scrollbar-track-neutral-800 dark:scrollbar-thumb-neutral-600">
+    class="flex flex-col h-screen px-6 m-auto text-lg leading-7 xl:px-28 bg-neutral text-neutral-900 dark:bg-neutral-800 dark:text-neutral sm:px-6 md:px-6 lg:px-6 scrollbar-thin scrollbar-track-neutral-200 scrollbar-thumb-neutral-400 dark:scrollbar-track-neutral-800 dark:scrollbar-thumb-neutral-600">
     <div id="the-top" class="absolute flex self-center">
       
     </div>
@@ -223,11 +223,11 @@
       
   <div class="min-h-[148px]"></div>
 
-<div class="fixed inset-x-0 xl:px-28 z-100">
+<div class="fixed inset-x-0 xl:px-28 sm:px-6 z-100">
   <div
     id="menu-blur"
-    class="absolute opacity-0 inset-x-0 top-0 h-full single_hero_background nozoom backdrop-blur-2xl shadow-2xl"></div>
-  <div class="relative">
+    class="absolute opacity-0 inset-x-0 top-0 h-full single_hero_background nozoom backdrop-blur-2xl shadow-2xl mt-4 xl:mx-28"></div>
+  <div class="relative headnav">
     
 
 
@@ -243,7 +243,7 @@
 
 
 <div
-  class="main-menu flex items-center justify-between px-4 py-6 xl:px-0 sm:px-6 md:justify-start gap-x-3 pt-[2px] pr-0 pb-[3px] pl-0">
+  class="main-menu flex items-center justify-between py-6 md:justify-start gap-x-2 pt-[2px] pb-[3px] mt-4 -mb-4">
   
   
     
@@ -266,13 +266,9 @@
   <div class="flex flex-1 items-center justify-between">
     <nav class="flex space-x-3">
       
-        <a href="/" class="text-base font-bold">
-          ESK
-        </a>
-      
     </nav>
     
-  <nav class="hidden md:flex items-center gap-x-5 md:ml-12 h-12">
+  <nav class="hidden md:flex items-center absolute left-1/2 transform -translate-x-1/2 gap-x-8 h-12">
   
     
       
@@ -341,7 +337,7 @@
     
   
 </nav>
-<nav class="hidden md:flex items-center gap-x-5 md:ml-12 h-12">
+<nav class="hidden md:flex items-center gap-x-5 h-12">
     
     
       <button
@@ -579,12 +575,14 @@
 </div>
 
 
+
 <script
   type="text/javascript"
-  src="/js/background-blur.min.f552cf1c60735c46feea17feb95ff2009737b5f148a733158ab6ae9df78067fb6deacba04fb0c57b155eed229fa1060bae2f7ba51a1bd2c80d60603ee4280b38.js"
-  integrity="sha512-9VLPHGBzXEb&#43;6hf&#43;uV/yAJc3tfFIpzMViraunfeAZ/tt6sugT7DFexVe7SKfoQYLri97pRob0sgNYGA&#43;5CgLOA=="
-  data-blur-id="menu-blur"></script>
-
+  src="/js/header-blur.min.3920cde5cb13d4b78a3d4212ba8a709d70044e64934593fb51c3771064069bff.js"
+  integrity="sha256-OSDN5csT1LeKPUISuopwnXAETmSTRZP7UcN3EGQGm/8="
+  data-header-blur-id="menu-blur"
+  data-scroll-divisor="300"
+  data-sticky-threshold="16"></script>
     
     <div class="relative flex flex-col grow">
       <main id="main-content" class="grow">

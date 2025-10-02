@@ -38,3 +38,6 @@ enableEmoji = true
   [[module.mounts]]
     source = "assets"
     target = "assets"
+
+[params]
+  disableTextInHeader = true
