@@ -21,7 +21,7 @@ mainSections = ["posts"]
 [footer]
  # showMenu = true
   showCopyright = true
-  showThemeAttribution = true
+ # showThemeAttribution = true
   showAppearanceSwitcher = true
   showScrollToTop = true
 
@@ -34,7 +34,7 @@ mainSections = ["posts"]
   showMoreLinkDest = "/blowfish_artist/posts"
   cardView = true
   cardViewScreenWidth = false
-  layoutBackgroundBlur = true # only used when layout equals background
+  layoutBackgroundBlur = false # only used when layout equals background
 
 [article]
   showDate = true
