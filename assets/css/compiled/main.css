@@ -266,6 +266,8 @@ body.zen-mode-enable {
     --text-3xl--line-height: calc(2.25 / 1.875);
     --text-4xl: 2.25rem;
     --text-4xl--line-height: calc(2.5 / 2.25);
+    --text-5xl: 3rem;
+    --text-5xl--line-height: 1;
     --text-6xl: 3.75rem;
     --text-6xl--line-height: 1;
     --font-weight-extralight: 200;
@@ -631,6 +633,9 @@ body.zen-mode-enable {
   }
   .-mx-2 {
     margin-inline: calc(var(--spacing) * -2);
+  }
+  .-mx-6 {
+    margin-inline: calc(var(--spacing) * -6);
   }
   .mx-1 {
     margin-inline: calc(var(--spacing) * 1);
@@ -1222,6 +1227,9 @@ body.zen-mode-enable {
   .mb-3 {
     margin-bottom: calc(var(--spacing) * 3);
   }
+  .mb-4 {
+    margin-bottom: calc(var(--spacing) * 4);
+  }
   .mb-5 {
     margin-bottom: calc(var(--spacing) * 5);
   }
@@ -1543,6 +1551,12 @@ body.zen-mode-enable {
   .flex-1 {
     flex: 1;
   }
+  .flex-\[720\] {
+    flex: 720;
+  }
+  .flex-\[1200\] {
+    flex: 1200;
+  }
   .flex-auto {
     flex: auto;
   }
@@ -1852,6 +1866,14 @@ body.zen-mode-enable {
     border-top-style: var(--tw-border-style);
     border-top-width: 1px;
   }
+  .border-r {
+    border-right-style: var(--tw-border-style);
+    border-right-width: 1px;
+  }
+  .border-b {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 1px;
+  }
   .border-b-2 {
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 2px;
@@ -1887,6 +1909,9 @@ body.zen-mode-enable {
   }
   .border-white {
     border-color: #fff;
+  }
+  .border-zinc-900 {
+    border-color: oklch(21% 0.006 285.885);
   }
   .prose-invert {
     --tw-prose-body: var(--tw-prose-invert-body);
@@ -1936,6 +1961,9 @@ body.zen-mode-enable {
   .bg-black {
     background-color: #000;
   }
+  .bg-blue-500 {
+    background-color: oklch(62.3% 0.214 259.815);
+  }
   .bg-neutral {
     background-color: rgba(var(--color-neutral), 1);
   }
@@ -1981,6 +2009,9 @@ body.zen-mode-enable {
   .bg-primary-600 {
     background-color: rgba(var(--color-primary-600), 1);
   }
+  .bg-red-500 {
+    background-color: oklch(63.7% 0.237 25.331);
+  }
   .bg-transparent {
     background-color: transparent;
   }
@@ -1989,6 +2020,15 @@ body.zen-mode-enable {
   }
   .bg-yellow-300 {
     background-color: oklch(90.5% 0.182 98.111);
+  }
+  .bg-zinc-300 {
+    background-color: oklch(87.1% 0.006 286.286);
+  }
+  .bg-zinc-400 {
+    background-color: oklch(70.5% 0.015 286.067);
+  }
+  .bg-zinc-900 {
+    background-color: oklch(21% 0.006 285.885);
   }
   .bg-gradient-to-b {
     --tw-gradient-position: to bottom in oklab;
@@ -2144,6 +2184,9 @@ body.zen-mode-enable {
   .py-16 {
     padding-block: calc(var(--spacing) * 16);
   }
+  .py-24 {
+    padding-block: calc(var(--spacing) * 24);
+  }
   .py-\[0\.4rem\] {
     padding-block: 0.4rem;
   }
@@ -2161,6 +2204,9 @@ body.zen-mode-enable {
   }
   .pe-3 {
     padding-inline-end: calc(var(--spacing) * 3);
+  }
+  .pe-28 {
+    padding-inline-end: calc(var(--spacing) * 28);
   }
   .pt-1 {
     padding-top: calc(var(--spacing) * 1);
@@ -2270,6 +2316,10 @@ body.zen-mode-enable {
     font-size: var(--text-4xl);
     line-height: var(--tw-leading, var(--text-4xl--line-height));
   }
+  .text-5xl {
+    font-size: var(--text-5xl);
+    line-height: var(--tw-leading, var(--text-5xl--line-height));
+  }
   .text-base {
     font-size: var(--text-base);
     line-height: var(--tw-leading, var(--text-base--line-height));
@@ -2308,6 +2358,10 @@ body.zen-mode-enable {
   .leading-\[1\.6\] {
     --tw-leading: 1.6;
     line-height: 1.6;
+  }
+  .leading-snug {
+    --tw-leading: var(--leading-snug);
+    line-height: var(--leading-snug);
   }
   .font-bold {
     --tw-font-weight: var(--font-weight-bold);
@@ -2411,6 +2465,9 @@ body.zen-mode-enable {
   .text-white {
     color: #fff;
   }
+  .text-zinc-900 {
+    color: oklch(21% 0.006 285.885);
+  }
   .capitalize {
     text-transform: capitalize;
   }
@@ -2477,6 +2534,9 @@ body.zen-mode-enable {
   }
   .opacity-65 {
     opacity: 65%;
+  }
+  .opacity-80 {
+    opacity: 80%;
   }
   .opacity-100 {
     opacity: 100%;
@@ -2828,6 +2888,27 @@ body.zen-mode-enable {
     &:hover {
       @media (hover: hover) {
         background-color: rgba(var(--color-primary-600), 1);
+      }
+    }
+  }
+  .hover\:bg-zinc-400 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: oklch(70.5% 0.015 286.067);
+      }
+    }
+  }
+  .hover\:bg-zinc-500 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: oklch(55.2% 0.016 285.938);
+      }
+    }
+  }
+  .hover\:bg-zinc-700 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: oklch(37% 0.013 285.805);
       }
     }
   }
@@ -3339,6 +3420,11 @@ body.zen-mode-enable {
   .lg\:ps-8 {
     @media (width >= 1024px) {
       padding-inline-start: calc(var(--spacing) * 8);
+    }
+  }
+  .xl\:-mx-28 {
+    @media (width >= 1280px) {
+      margin-inline: calc(var(--spacing) * -28);
     }
   }
   .xl\:mx-28 {

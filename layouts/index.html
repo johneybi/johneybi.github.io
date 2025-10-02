@@ -6,9 +6,11 @@
 
   {{/* 이미지가 존재하는지 확인 후 출력 */}}
   {{ if $image }}
-  <img src="{{ $image.RelPermalink }}" alt="product and product" class="pt-[length:454px] w-full max-w-[length:1200px] nozoom">
+  <img src="{{ $image.RelPermalink }}" alt="product and product"
+    class="pt-[length:454px] w-full max-w-[length:1200px] nozoom">
   {{ end }}
-  <div class="flex h-12 justify-between items-end self-stretch border-t border-solid border-white text-white font-extralight">
+  <div
+    class="flex h-12 justify-between items-end self-stretch border-t border-solid border-white text-white font-extralight">
     <span>Industrial <span class="font-medium">Product</span></span>
     <span class="font-medium">+</span>
     <span>Digital <span class="font-medium">Product</span></span>
@@ -16,7 +18,20 @@
     <span>Blending the gap between both world</span>
   </div>
 </div>
+<div class="flex -mx-6 xl:-mx-28 mb-8 ">
+  <div class="relative flex-[1200] py-24 min-w-0 xl:px-28 border-r border-b border-zinc-900">
+    <p class="text-5xl font-medium leading-snug text-zinc-900">Hi. I’m Eun Seok-ki, a designer blending
+      physical products and digital experiences.<br>
+      From concept to craft, I bring ideas to life
+      across both worlds.</p>
+      <button class="absolute bottom-0 right-0 bg-zinc-300 hover:bg-zinc-400 text-zinc-900 px-6 py-3 text-2xl">
+  About me
+</button>
+  </div>
+  <div class="flex-[720] min-w-0 border-b border-zinc-900">
 
+  </div>
+</div>
 {{ $partial := print "home/" .Site.Params.homepage.layout ".html" }}
 {{ if templates.Exists ( printf "partials/%s" $partial ) }}
 {{ partial $partial . }}
