@@ -44,3 +44,4 @@ document.querySelectorAll("script[data-blur-id]").forEach((script) => {
   const disableBlur = settings.disableBlur || false;
   setBackgroundBlur(targetId, scrollDivisor, disableBlur, isMenuBlur, scrollThreshold);
 });
+

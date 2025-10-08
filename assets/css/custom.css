@@ -1,14 +1,15 @@
-@font-face {
-  font-family: 'Pretendard Variable';
-  font-weight: 45 920;
-  /* Variable font 범위 */
-  font-style: normal;
-  src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
-}
-
 :root {
-  --font-base: azo-sans-web, "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
-  --font-ko: azo-sans-web, "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  --font-base: 'Wanted Sans Variable', 'Pretendard Variable', Pretendard,
+    -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+    'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
+    'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    sans-serif;
+
+  --font-ko: 'Wanted Sans Variable', 'Pretendard Variable', Pretendard,
+    -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+    'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
+    'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    sans-serif;
 }
 
 body {
@@ -101,6 +102,7 @@ body {
 .logo svg {
     height: 2.5rem !important;  /* 원하는 크기 */
     width: auto !important;   /* 비율 유지 */
+    transition: all 0.3s ease;
 }
 
 .menuhide .flex-col a {
@@ -147,6 +149,11 @@ nav > *:nth-last-child(-n+3) .menuhide {
   padding-left: 1rem !important;  /* inset-x-0을 덮어쓰기 */
   padding-right: 1rem !important;
   /* padding 사용하지 않음 */
+}
+
+.is-sticky .logo svg {
+    height: 2.4rem !important;  /* 원하는 크기 */
+    width: auto !important;   /* 비율 유지 */
 }
 
 @media (min-width: 640px) and (max-width: 1279px) {
