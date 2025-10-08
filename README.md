@@ -9,3 +9,10 @@ WSL에서 돌리는게 정신건강에 이로움. Windows에서 절대 안되는
 
 npm run dev
 npm surver
+
+
+
+cd themes/blowfish
+git fetch origin main
+git reset --hard origin/main
+cd ../..
