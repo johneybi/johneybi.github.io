@@ -1,11 +1,11 @@
 :root {
-  --font-base: 'Wanted Sans Variable', 'Pretendard Variable', Pretendard,
+  --font-base: 'Wanted Sans Variable',
     -apple-system, BlinkMacSystemFont, system-ui, Roboto,
     'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
     'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     sans-serif;
 
-  --font-ko: 'Wanted Sans Variable', 'Pretendard Variable', Pretendard,
+  --font-eng: azo-sans-web,
     -apple-system, BlinkMacSystemFont, system-ui, Roboto,
     'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
     'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
