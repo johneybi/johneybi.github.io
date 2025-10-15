@@ -1667,6 +1667,9 @@ body.zen-mode-enable {
   .gap-x-8 {
     column-gap: calc(var(--spacing) * 8);
   }
+  .gap-x-12 {
+    column-gap: calc(var(--spacing) * 12);
+  }
   .space-x-2 {
     :where(& > :not(:last-child)) {
       --tw-space-x-reverse: 0;
@@ -3296,6 +3299,11 @@ body.zen-mode-enable {
   .xl\:px-28 {
     @media (width >= 1280px) {
       padding-inline: calc(var(--spacing) * 28);
+    }
+  }
+  .\32 xl\:block {
+    @media (width >= 1536px) {
+      display: block;
     }
   }
   .\32 xl\:grid-cols-5 {

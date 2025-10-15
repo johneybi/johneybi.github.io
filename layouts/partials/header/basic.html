@@ -26,7 +26,7 @@
 
 {{/* Desktop navigation */}}
 {{ define "HeaderDesktopNavigation" }}
-  <nav class="hidden md:flex items-center absolute left-1/2 transform -translate-x-1/2 gap-x-8 h-12">
+  <nav class="hidden md:flex items-center absolute left-1/2 transform -translate-x-1/2 gap-x-12 h-12">
   {{ range .Site.Menus.main }}
     {{ if and .Params (eq .Params.type "page") }}
       {{ partial "header/header-option.html" . }}
