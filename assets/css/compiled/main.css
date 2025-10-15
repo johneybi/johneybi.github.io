@@ -1380,9 +1380,6 @@ body.zen-mode-enable {
   .h-\[150px\] {
     height: 150px;
   }
-  .h-\[680px\] {
-    height: 680px;
-  }
   .h-\[800px\] {
     height: 800px;
   }
@@ -2069,9 +2066,6 @@ body.zen-mode-enable {
   .to-transparent {
     --tw-gradient-to: transparent;
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-  }
-  .bg-\[length\:400\%_400\%\] {
-    background-size: 400% 400%;
   }
   .bg-clip-padding {
     background-clip: padding-box;
@@ -3213,11 +3207,6 @@ body.zen-mode-enable {
       padding-inline: calc(var(--spacing) * 6);
     }
   }
-  .md\:px-14 {
-    @media (width >= 853px) {
-      padding-inline: calc(var(--spacing) * 14);
-    }
-  }
   .md\:px-24 {
     @media (width >= 853px) {
       padding-inline: calc(var(--spacing) * 24);
@@ -3366,11 +3355,6 @@ body.zen-mode-enable {
   .lg\:px-8 {
     @media (width >= 1024px) {
       padding-inline: calc(var(--spacing) * 8);
-    }
-  }
-  .lg\:px-14 {
-    @media (width >= 1024px) {
-      padding-inline: calc(var(--spacing) * 14);
     }
   }
   .lg\:px-32 {
