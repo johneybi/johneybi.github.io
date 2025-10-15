@@ -41,3 +41,9 @@ enableEmoji = true
 
 [params]
   disableTextInHeader = true
+
+[minify]
+  minifyOutput = true
+  [minify.tdewolff]
+    [minify.tdewolff.svg]
+      precision = 2  # 소수점 2자리로 제한

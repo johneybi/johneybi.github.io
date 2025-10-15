@@ -10,6 +10,11 @@ document.addEventListener('DOMContentLoaded', function () {
     let targetY = 15, currentY = 15;
     let velocityX = 0, velocityY = 0; // animate 외부로 이동
 
+        // ★★★ 초기값을 즉시 적용 (화면 점프 방지) ★★★
+    animatedElement.style.setProperty('--mouse-angle', `${currentAngle}deg`);
+    animatedElement.style.setProperty('--x-offset', `${currentX}vw`);
+    animatedElement.style.setProperty('--y-offset', `${currentY}vw`);
+
     // 설정값
     const CONFIG = {
         smoothingFactor: 0.05,
@@ -134,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const radiusY = 14 * (1 + smoothProgress * 0.2);
 
         targetX = Math.cos(angleInRadians) * radiusX;
-        targetY = 15 + Math.sin(angleInRadians) * radiusY;
+        targetY = 15 + Math.sin(angleInRadians) * radiusY - smoothProgress * 10; 
 
         // 스프링 물리
         const springForceX = (targetX - currentX) * CONFIG.springStrength;

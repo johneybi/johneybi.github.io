@@ -38,16 +38,25 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 2474px;
-  height: 1541px;
-  transform-origin: center;
-  will-change: transform;
-  transform: translate3d(calc(-50% + var(--x-offset, 10vw)),
-      calc(-50% + var(--y-offset, 15vw)),
-      0) scale(1.8) rotate(var(--mouse-angle, 0deg));
+  width: 825px;
+  height: 514px;
+  
+  /* 3배 × 1.8 = 5.4 scale로 원본 크기 복원 */
+  transform: translate3d(calc(-50% + var(--x-offset, 0vw)),
+      calc(-50% + var(--y-offset, 0vw)),
+      0) scale(5.8) rotate(var(--mouse-angle, 0deg));
+  
+  /* 강한 blur로 업스케일링 아티팩트 숨김 */
+  filter: blur(40px);
+  
+  /* GPU 최적화 강화 */
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+    /* 추가 최적화 속성 */
+  contain: layout style paint;  /* 렌더링 최적화 */
+  pointer-events: none;  /* 이벤트 처리 부담 감소 */
   z-index: 2;
-  /* 🔥 컨테이너 레벨 블러 테스트 */
-  filter: blur(120px);
 }
 
 .hero-container {
