@@ -72,7 +72,7 @@ body {
 
 .bisque-elipse {
   border-radius: 50%;
-  background: #b6a498;
+  background: hsl(24, 17%, 65%);
   filter: blur(140px);
   z-index: 4;
 }
