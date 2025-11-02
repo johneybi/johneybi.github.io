@@ -1567,6 +1567,9 @@ body.zen-mode-enable {
   .scale-\[1\.02\] {
     scale: 1.02;
   }
+  .rotate-90 {
+    rotate: 90deg;
+  }
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
@@ -2972,9 +2975,24 @@ body.zen-mode-enable {
       margin-bottom: calc(var(--spacing) * 0);
     }
   }
+  .sm\:block {
+    @media (width >= 640px) {
+      display: block;
+    }
+  }
+  .sm\:hidden {
+    @media (width >= 640px) {
+      display: none;
+    }
+  }
   .sm\:w-1\/2 {
     @media (width >= 640px) {
       width: calc(1/2 * 100%);
+    }
+  }
+  .sm\:rotate-0 {
+    @media (width >= 640px) {
+      rotate: 0deg;
     }
   }
   .sm\:grid-cols-2 {
@@ -2985,6 +3003,16 @@ body.zen-mode-enable {
   .sm\:flex-row {
     @media (width >= 640px) {
       flex-direction: row;
+    }
+  }
+  .sm\:self-end {
+    @media (width >= 640px) {
+      align-self: flex-end;
+    }
+  }
+  .sm\:self-start {
+    @media (width >= 640px) {
+      align-self: flex-start;
     }
   }
   .sm\:overflow-hidden {

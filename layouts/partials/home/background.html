@@ -59,19 +59,30 @@
   </svg>
 
   <div class="hero-container">
-    {{ $image1 := resources.Get "img/lefttop_dark.png" }}
-    {{ if $image1 }}
-    <img src="{{ $image1.RelPermalink }}">
-    {{ end }}
-    {{ $image2 := resources.Get "img/rightbottom_dark.png" }}
-    {{ if $image2 }}
-    <img src="{{ $image2.RelPermalink }}">
-    {{ end }}
+    <div class="flex flex-col sm:flex-row justify-between items-center w-full h-full">
+      {{ $image1_desktop := resources.Get "img/lefttop_dark.png" }}
+      {{ if $image1_desktop }}
+      <img src="{{ $image1_desktop.RelPermalink }}" class="hidden sm:block sm:self-start" alt="Top-left decorative image for desktop">
+      {{ end }}
+      {{ $image1_mobile := resources.Get "img/lefttop_dark_mobile.png" }}
+      {{ if $image1_mobile }}
+      <img src="{{ $image1_mobile.RelPermalink }}" class="block sm:hidden">
+      {{ end }}
+
+      {{ $image2_desktop := resources.Get "img/rightbottom_dark.png" }}
+      {{ if $image2_desktop }}
+      <img src="{{ $image2_desktop.RelPermalink }}" class="hidden sm:block sm:self-end" alt="Bottom-right decorative image for desktop">
+      {{ end }}
+      {{ $image2_mobile := resources.Get "img/rightbottom_dark_mobile.png" }}
+      {{ if $image2_mobile }}
+      <img src="{{ $image2_mobile.RelPermalink }}" class="block sm:hidden">
+      {{ end }}
+    </div>
   </div>
-  <div class="absolute w-[length:160%] h-[length:70%] top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bisque-elipse">
+  <div class="absolute w-[length:160%] h-[length:70%] top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bisque-elipse overflow-visible">
   </div>
   <div
-    class="absolute w-[length:85%] h-[length:25%] top-[length:-5%] left-1/2 -translate-x-1/2 -translate-y-1/2 main-elipse">
+    class="absolute w-[length:85%] h-[length:25%] top-[length:-5%] left-1/2 -translate-x-1/2 -translate-y-1/2 main-elipse overflow-visible">
   </div>
   <div class="absolute inset-0 pattern-overlay"></div>
   <div id="mouse-capture-area"></div>
