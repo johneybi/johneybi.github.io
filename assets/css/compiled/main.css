@@ -1567,9 +1567,6 @@ body.zen-mode-enable {
   .scale-\[1\.02\] {
     scale: 1.02;
   }
-  .rotate-90 {
-    rotate: 90deg;
-  }
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
@@ -2988,11 +2985,6 @@ body.zen-mode-enable {
   .sm\:w-1\/2 {
     @media (width >= 640px) {
       width: calc(1/2 * 100%);
-    }
-  }
-  .sm\:rotate-0 {
-    @media (width >= 640px) {
-      rotate: 0deg;
     }
   }
   .sm\:grid-cols-2 {
