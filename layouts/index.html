@@ -1,22 +1,7 @@
 {{ define "main" }}
 
 <div class="h-[880px]">
-  {{/* 'assets' 폴더의 이미지를 변수로 가져오기 */}}
-  {{ $image := resources.Get "img/product_product.svg" }}
 
-  {{/* 이미지가 존재하는지 확인 후 출력 */}}
-  {{ if $image }}
-  <img src="{{ $image.RelPermalink }}" alt="product and product"
-    class="pt-[length:454px] w-full max-w-[length:1200px] nozoom">
-  {{ end }}
-  <div
-    class="flex h-12 justify-between items-end self-stretch border-t border-solid border-white text-white font-extralight">
-    <span>Industrial <span class="font-medium">Product</span></span>
-    <span class="font-medium">+</span>
-    <span>Digital <span class="font-medium">Product</span></span>
-    <span class="font-medium">=</span>
-    <span>Blending the gap between both world</span>
-  </div>
 </div>
 <div class="flex -mx-6 xl:-mx-28 mb-8 ">
   <div class="relative flex-[1200] pt-28 pb-24 min-w-0 xl:px-28 border-r border-b border-zinc-900">
