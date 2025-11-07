@@ -5,6 +5,9 @@
     'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     sans-serif;
 
+  --font-ivymode: 'IvyMode', serif;
+  --font-futura: 'Futura 100', sans-serif;
+
   --font-eng: azo-sans-web,
     -apple-system, BlinkMacSystemFont, system-ui, Roboto,
     'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
@@ -16,13 +19,20 @@ body {
   font-family: var(--font-base);
 }
 
+.font-ivymode {
+  font-family: var(--font-ivymode);
+}
+
+.font-futura {
+  font-family: var(--font-futura);
+}
+
 .full-width-bg {
   position: absolute;
   top: 0;
   left: 50%;
   transform: translateX(-50%);
   width: 100vw;
-  height: 880px;
   contain: strict;
   z-index: -50;
   transform-style: preserve-3d;
@@ -40,22 +50,24 @@ body {
   left: 50%;
   width: 825px;
   height: 514px;
-  
+
   /* 3배 × 1.8 = 5.4 scale로 원본 크기 복원 */
   transform: translate3d(calc(-50% + var(--x-offset, 0vw)),
       calc(-50% + var(--y-offset, 0vw)),
       0) scale(5.8) rotate(var(--mouse-angle, 0deg));
-  
+
   /* 강한 blur로 업스케일링 아티팩트 숨김 */
   filter: blur(40px);
-  
+
   /* GPU 최적화 강화 */
   will-change: transform, filter;
   backface-visibility: hidden;
   transform-style: preserve-3d;
-    /* 추가 최적화 속성 */
-  contain: layout style paint;  /* 렌더링 최적화 */
-  pointer-events: none;  /* 이벤트 처리 부담 감소 */
+  /* 추가 최적화 속성 */
+  contain: layout style paint;
+  /* 렌더링 최적화 */
+  pointer-events: none;
+  /* 이벤트 처리 부담 감소 */
   z-index: 2;
 }
 
@@ -109,31 +121,33 @@ body {
 }
 
 .logo svg {
-    height: 2.5rem !important;  /* 원하는 크기 */
-    width: auto !important;   /* 비율 유지 */
-    transition: all 0.3s ease;
+  height: 2.5rem !important;
+  /* 원하는 크기 */
+  width: auto !important;
+  /* 비율 유지 */
+  transition: all 0.3s ease;
 }
 
 .menuhide .flex-col a {
-    white-space: nowrap !important;
+  white-space: nowrap !important;
 }
 
 /* 화면 끝에 있는 메뉴 처리 */
 .nested-menu {
-    position: relative;
+  position: relative;
 }
 
 .nested-menu .menuhide {
-    position: absolute;
-    z-index: 50;
-    min-width: 150px;
-    white-space: nowrap;
+  position: absolute;
+  z-index: 50;
+  min-width: 150px;
+  white-space: nowrap;
 }
 
 /* 오른쪽 끝 메뉴들은 왼쪽으로 열리게 */
-nav > *:nth-last-child(-n+3) .menuhide {
-    right: 0;
-    left: auto;
+nav>*:nth-last-child(-n+3) .menuhide {
+  right: 0;
+  left: auto;
 }
 
 /* blur 요소에 트랜지션 설정 */
@@ -149,26 +163,30 @@ nav > *:nth-last-child(-n+3) .menuhide {
 }
 
 /* 헤더 전체 애니메이션 */
-.fixed.inset-x-0, .headnav {
+.fixed.inset-x-0,
+.headnav {
   transition: all 0.3s ease;
 }
 
 /* sticky 상태에서 - padding 대신 left/right 값 변경! */
 .is-sticky.fixed .headnav {
-  padding-left: 1rem !important;  /* inset-x-0을 덮어쓰기 */
+  padding-left: 1rem !important;
+  /* inset-x-0을 덮어쓰기 */
   padding-right: 1rem !important;
   /* padding 사용하지 않음 */
 }
 
 .is-sticky .logo svg {
-    height: 2.4rem !important;  /* 원하는 크기 */
-    width: auto !important;   /* 비율 유지 */
+  height: 2.4rem !important;
+  /* 원하는 크기 */
+  width: auto !important;
+  /* 비율 유지 */
 }
 
 @media (min-width: 640px) and (max-width: 1279px) {
   .is-sticky {
-    margin-left: 1.5rem !important; 
+    margin-left: 1.5rem !important;
     margin-right: 1.5rem !important;
-    padding: 0rem; 
+    padding: 0rem;
   }
 }

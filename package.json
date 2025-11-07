@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "npx tailwindcss -c ./themes/blowfish/tailwind.config.js -i ./themes/blowfish/assets/css/main.css -o ./assets/css/compiled/main.css -w --poll",
     "build": "cross-env NODE_ENV=production cd themes/blowfish && npx tailwindcss -c ./tailwind.config.js -i ./assets/css/main.css -o ../../assets/css/main.css --minify",
-    "server": "hugo server --poll=700ms"
+    "server": "hugo server --poll=700ms --bind=0.0.0.0"
   },
   "repository": {
     "type": "git",
