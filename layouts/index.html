@@ -1,23 +1,62 @@
 {{ define "main" }}
 
-<div class="h-[880px]">
-  {{/* 'assets' 폴더의 이미지를 변수로 가져오기 */}}
-  {{ $image := resources.Get "img/product_product.svg" }}
+<div class="h-[680px] md:h-[880px]">
+  <div class="mt-90 mx-12 border-b-2 pb-10 border-stone-200 flex justify-between items-end">
+    <div>
+      <div class="font-ivymode xl:text-[160px] md:text-[98px] text-[60px] leading-none tracking-[-2px] text-stone-200"
+        id="typing">
+        Product
+      </div>
+      <div
+        class="mt-3 md:mt-3 flex items-center gap-11 font-futura font-medium xl:text-[160px] md:text-[98px] text-[60px] leading-none tracking-[-1px] text-stone-200"
+        id="typingSecond">
+        <span class="font-light" id="andMark">&</span>
+        <span class="italic" id="rolling">Product</span>
+      </div>
+    </div>
+    <div class="">
+      <svg id="animated-svg" style="visibility: hidden;" width="376" height="376" viewBox="0 0 376 376" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <g id="thinCross">
+            <rect x="-1" y="-40" width="2" height="80" fill="#d9d9d9" />
+            <rect x="-40" y="-1" width="80" height="2" fill="#d9d9d9" />
+          </g>
+          <g id="thickCross">
+            <rect x="-2" y="-40" width="4" height="80" fill="#d9d9d9" />
+            <rect x="-40" y="-2" width="80" height="4" fill="#d9d9d9" />
+          </g>
+        </defs>
 
-  {{/* 이미지가 존재하는지 확인 후 출력 */}}
-  {{ if $image }}
-  <img src="{{ $image.RelPermalink }}" alt="product and product"
-    class="pt-[length:454px] w-full max-w-[length:1200px] nozoom">
-  {{ end }}
-  <div
-    class="flex h-12 justify-between items-end self-stretch border-t border-solid border-white text-white font-extralight">
-    <span>Industrial <span class="font-medium">Product</span></span>
-    <span class="font-medium">+</span>
-    <span>Digital <span class="font-medium">Product</span></span>
-    <span class="font-medium">=</span>
-    <span>Blending the gap between both world</span>
+        <!-- 날아가는 얇은 십자가들 -->
+        <g id="leftFar">
+          <use href="#thinCross" />
+        </g>
+        <g id="leftClose">
+          <use href="#thinCross" />
+        </g>
+        <g id="upFar">
+          <use href="#thinCross" />
+        </g>
+        <g id="upClose">
+          <use href="#thinCross" />
+        </g>
+
+        <!-- 대각선 + 스핀 (두꺼운) -->
+        <g id="diagonal">
+          <use href="#thickCross" />
+        </g>
+
+        <!-- 중심 (정사각형 → 십자가 모핑) -->
+        <g id="center" transform="translate(336,336)">
+          <rect id="centerH" x="-40" y="-40" width="80" height="80" fill="#d9d9d9" /> <!-- 가로 바 (scaleY로 얇아짐) -->
+          <rect id="centerV" x="-40" y="-40" width="80" height="80" fill="#d9d9d9" /> <!-- 세로 바 (scaleX로 얇아짐) -->
+        </g>
+      </svg>
+    </div>
   </div>
 </div>
+
+
 <div class="flex -mx-6 xl:-mx-28 mb-8 ">
   <div class="relative flex-[1200] pt-28 pb-24 min-w-0 xl:px-28 border-r border-b border-zinc-900">
     <p class="text-4xl font-regular leading-snug text-zinc-900">
@@ -26,14 +65,15 @@
         class="2xl:block"> physical products and digital experiences,<br> using a seamless perspective to define the
         core of a problem and derive its solution.</span></p> -->
 
-      Hi, I'm a product designer who works in the space between <span
-        class="2xl:block">physical and digital to get to the core of
-      problems. <span
-        class="2xl:block">From there, I design solutions that work for users and work in production.</span></span></p>
+      Hi, I'm a product designer who works in the space between <span class="2xl:block">physical and digital to get to
+        the core of
+        problems. <span class="2xl:block">From there, I design solutions that work for users and work in
+          production.</span></span>
+    </p>
 
-      <button class="absolute bottom-0 right-0 bg-zinc-300 hover:bg-zinc-400 text-zinc-900 px-6 py-3 text-2xl">
-        About me
-      </button>
+    <button class="absolute bottom-0 right-0 bg-zinc-300 hover:bg-zinc-400 text-zinc-900 px-6 py-3 text-2xl">
+      About me
+    </button>
   </div>
   <div class="flex-[720] min-w-0 border-b border-zinc-900">
 
@@ -45,4 +85,6 @@
 {{ else }}
 {{ partial "home/profile.html" . }}
 {{ end }}
+
+
 {{ end }}

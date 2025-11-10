@@ -1,0 +1,8 @@
+{
+  "gemini.codeAssist.mcpServers": {
+    "figma": {
+      "type": "http",
+      "url": "http://localhost:3845/sse"
+    }
+  }
+}
