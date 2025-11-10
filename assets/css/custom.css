@@ -39,6 +39,28 @@ body {
   perspective: 1000px;
 }
 
+#borderLine {
+  position: relative;
+}
+
+#borderLine::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  /* border-b-2와 동일한 두께 */
+  background-color: #e7e5e4;
+  /* border-stone-200 색상 */
+  --scale-x: 0;
+  /* CSS 변수 초기값 설정 */
+  transform: scaleX(var(--scale-x));
+  /* CSS 변수를 transform에 연결 */
+  transform-origin: left;
+  /* 왼쪽을 기준으로 크기 변경 */
+}
+
 .herobase {
   background: linear-gradient(90deg, #000 5%, #b6a498 70%);
   z-index: 1;

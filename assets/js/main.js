@@ -19,8 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-
-
     const typingSecondElement = document.getElementById("typingSecond");
     if (typingSecondElement) {
         gsap.matchMedia().add({
@@ -109,5 +107,46 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    gsap.set("#animated-svg", { visibility: "visible" }); // SVG 보이기
+    const tl = gsap.timeline();
+
+    // 초기 상태 (모두 중심, 투명)
+    gsap.set(["#leftFar", "#leftClose", "#upFar", "#upClose", "#diagonal", "#center"], {
+        x: 336, y: 336, opacity: 0, transformOrigin: "center center"
+    });
+    gsap.set("#diagonal", { rotation: 90 });
+    gsap.set("#centerH, #centerV", { scaleX: 1, scaleY: 1, transformOrigin: "center center" }); // 명시적 초기 스케일
+
+    // 전체 애니메이션 1초 뒤 시작 (원본 타이밍 그대로 +1초 오프셋)
+    // 1.000초 ~ 1.766초 : 중심 정사각형 → 십자가 모핑 (scale로 GPU 가속, 완벽히 매끄러움)
+    //    - 처음 0.5초는 opacity 0이라 보이지 않음 (원본과 동일)
+    //    - fade-in 시점에 이미 중간 정도 얇아진 상태로 등장 → 나머지 천천히 얇아지며 십자가 완성
+    tl.to("#centerH", { scaleY: 0.05, duration: 2, ease: "power3.inOut" }, 1);
+    tl.to("#centerV", { scaleX: 0.05, duration: 2, ease: "power3.inOut" }, 1);
+
+    // 1.0초: 중심 요소가 동적으로 나타나는 애니메이션 (크기+투명도)
+    tl.fromTo("#center",
+        { scale: 0.5, opacity: 0 }, // 시작 상태
+        { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }, // 종료 상태
+        2 // 타임라인에서 1초 시점에 시작
+    );
+
+    // 1.1초: 나머지 요소들 페이드인
+    tl.to(["#leftFar", "#leftClose", "#upFar", "#upClose", "#diagonal"], {
+        opacity: 1, duration: 0.6, ease: "power2.out"
+    }, 2.2);
+
+    // 1.5초 ~ 2.7초 : 날아가기 (원본 t=30~102, 1.2초, power3.inOut으로 easing 99% 일치)
+    tl.to("#leftFar", { x: 40, duration: 1.2, ease: "power3.inOut" }, 2.8);
+    tl.to("#leftClose", { x: 188, duration: 1.2, ease: "power3.inOut" }, 3);
+    tl.to("#upFar", { y: 40, duration: 1.2, ease: "power3.inOut" }, 2.8);
+    tl.to("#upClose", { y: 188, duration: 1.2, ease: "power3.inOut" }, 3);
+    tl.to("#diagonal", { x: 190, y: 188, duration: 1.2, ease: "power3.inOut" }, 2.5);
+
+    // 3.0초 ~ 3.733초 : 대각선 십자가 스핀 (원본 t=120~164, 315° 회전)
+    tl.to("#diagonal", { rotation: 405, duration: 0.733, ease: "power4.inOut" }, 4.5);
+
+
 
 });
