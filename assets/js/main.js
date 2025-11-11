@@ -21,20 +21,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const typingSecondElement = document.getElementById("typingSecond");
     if (typingSecondElement) {
-        gsap.matchMedia().add({
-            // 1280px 초과 뷰포트
-            isDesktop: "(min-width: 1281px)",
-            // 1280px 이하 뷰포트
-            isMobile: "(max-width: 1280px)"
-        }, (context) => {
-            let { isDesktop } = context.conditions;
-
-            gsap.to(typingSecondElement, {
-                delay: 1.4,
-                duration: 1.5,
-                x: isDesktop ? 268 : 160, // 화면 너비에 따라 x값 변경
-                ease: "power2.inOut"
-            });
+        gsap.to(typingSecondElement, {
+            delay: 1.4,
+            duration: 1.5,
+            x: '10vw', // Use viewport width unit
+            ease: "power2.inOut"
         });
     }
 
@@ -147,6 +138,39 @@ document.addEventListener("DOMContentLoaded", () => {
     // 3.0초 ~ 3.733초 : 대각선 십자가 스핀 (원본 t=120~164, 315° 회전)
     tl.to("#diagonal", { rotation: 405, duration: 0.733, ease: "power4.inOut" }, 4.5);
 
+    // 메인 애니메이션 완료 후 실행
+    gsap.delayedCall(8.5, () => {
+        function rotateSequence() {
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    gsap.delayedCall(3, rotateSequence); // 3초 후 다시 실행
+                }
+            });
 
+            // 1단계
+            tl.to(["#diagonal", "#leftClose"], {
+                rotation: "+=45",
+                duration: 0.4,
+                ease: "power2.inOut"
+            })
+                // 2초 대기
+                .to({}, { duration: 3 })
+                // 2단계
+                .to(["#diagonal", "#upClose"], {
+                    rotation: "+=45",
+                    duration: 0.4,
+                    ease: "power2.inOut"
+                })
+                // 2초 대기
+                .to({}, { duration: 3 })
+                // 3단계
+                .to(["#center", "#diagonal"], {
+                    rotation: "+=45",
+                    duration: 0.4,
+                    ease: "power2.inOut"
+                });
+        }
 
+        rotateSequence();
+    });
 });
