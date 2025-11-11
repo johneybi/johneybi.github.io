@@ -48,7 +48,7 @@ error:
 footer:
   dark_appearance: "다크 모드로 전환"
   light_appearance: "라이트 모드로 전환"
-  powered_by: "{{ .Hugo }} &amp; {{ .Theme }} 로 제공됨"
+  powered_by: "Self published by 은석기"
 
 list:
   externalurl_title: "외부 사이트로 링크"
