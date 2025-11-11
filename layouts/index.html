@@ -1,60 +1,61 @@
 {{ define "main" }}
 
-<div class="h-[680px] md:h-[880px]">
-  <div class="mt-90 mx-12 border-b-2 pb-10 border-stone-200 flex justify-between items-end">
-    <div>
-      <div class="font-ivymode xl:text-[160px] md:text-[98px] text-[60px] leading-none tracking-[-2px] text-stone-200"
-        id="typing">
-        Product
-      </div>
-      <div
-        class="mt-3 md:mt-3 flex items-center gap-11 font-futura font-medium xl:text-[160px] md:text-[98px] text-[60px] leading-none tracking-[-1px] text-stone-200"
-        id="typingSecond">
-        <span class="font-light" id="andMark">&</span>
-        <span class="italic" id="rolling">Product</span>
-      </div>
+
+<div class="mt-90 mx-12 pb-10 mb-26 border-stone-200 flex justify-between items-end">
+  <div>
+    <div class="font-ivymode xl:text-[152px] md:text-[98px] text-[60px] leading-none tracking-[-2px] text-stone-200"
+      id="typing">
+      Product
     </div>
-    <div class="">
-      <svg id="animated-svg" style="visibility: hidden;" width="376" height="376" viewBox="0 0 376 376" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <g id="thinCross">
-            <rect x="-1" y="-40" width="2" height="80" fill="#d9d9d9" />
-            <rect x="-40" y="-1" width="80" height="2" fill="#d9d9d9" />
-          </g>
-          <g id="thickCross">
-            <rect x="-2" y="-40" width="4" height="80" fill="#d9d9d9" />
-            <rect x="-40" y="-2" width="80" height="4" fill="#d9d9d9" />
-          </g>
-        </defs>
-
-        <!-- 날아가는 얇은 십자가들 -->
-        <g id="leftFar">
-          <use href="#thinCross" />
-        </g>
-        <g id="leftClose">
-          <use href="#thinCross" />
-        </g>
-        <g id="upFar">
-          <use href="#thinCross" />
-        </g>
-        <g id="upClose">
-          <use href="#thinCross" />
-        </g>
-
-        <!-- 대각선 + 스핀 (두꺼운) -->
-        <g id="diagonal">
-          <use href="#thickCross" />
-        </g>
-
-        <!-- 중심 (정사각형 → 십자가 모핑) -->
-        <g id="center" transform="translate(336,336)">
-          <rect id="centerH" x="-40" y="-40" width="80" height="80" fill="#d9d9d9" /> <!-- 가로 바 (scaleY로 얇아짐) -->
-          <rect id="centerV" x="-40" y="-40" width="80" height="80" fill="#d9d9d9" /> <!-- 세로 바 (scaleX로 얇아짐) -->
-        </g>
-      </svg>
+    <div
+      class="mt-3 md:mt-3 flex items-center gap-11 font-futura font-medium xl:text-[152px] md:text-[98px] text-[60px] leading-none tracking-[-1px] text-stone-200"
+      id="typingSecond">
+      <span class="font-light" id="andMark">&</span>
+      <span class="italic" id="rolling">Product</span>
     </div>
   </div>
+  <div class="">
+    <svg id="animated-svg" style="visibility: hidden;" width="376" height="376" viewBox="0 0 376 376"
+      xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <g id="thinCross">
+          <rect x="-1" y="-40" width="2" height="80" fill="#d9d9d9" />
+          <rect x="-40" y="-1" width="80" height="2" fill="#d9d9d9" />
+        </g>
+        <g id="thickCross">
+          <rect x="-2" y="-40" width="4" height="80" fill="#d9d9d9" />
+          <rect x="-40" y="-2" width="80" height="4" fill="#d9d9d9" />
+        </g>
+      </defs>
+
+      <!-- 날아가는 얇은 십자가들 -->
+      <g id="leftFar">
+        <use href="#thinCross" />
+      </g>
+      <g id="leftClose">
+        <use href="#thinCross" />
+      </g>
+      <g id="upFar">
+        <use href="#thinCross" />
+      </g>
+      <g id="upClose">
+        <use href="#thinCross" />
+      </g>
+
+      <!-- 대각선 + 스핀 (두꺼운) -->
+      <g id="diagonal">
+        <use href="#thickCross" />
+      </g>
+
+      <!-- 중심 (정사각형 → 십자가 모핑) -->
+      <g id="center" transform="translate(336,336)">
+        <rect id="centerH" x="-40" y="-40" width="80" height="80" fill="#d9d9d9" /> <!-- 가로 바 (scaleY로 얇아짐) -->
+        <rect id="centerV" x="-40" y="-40" width="80" height="80" fill="#d9d9d9" /> <!-- 세로 바 (scaleX로 얇아짐) -->
+      </g>
+    </svg>
+  </div>
 </div>
+
 
 
 <div class="flex -mx-6 xl:-mx-28 mb-8 ">

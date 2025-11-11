@@ -265,7 +265,6 @@ body.zen-mode-enable {
     --text-3xl--line-height: calc(2.25 / 1.875);
     --text-4xl: 2.25rem;
     --text-4xl--line-height: calc(2.5 / 2.25);
-    --font-weight-extralight: 200;
     --font-weight-light: 300;
     --font-weight-normal: 400;
     --font-weight-medium: 500;
@@ -1232,8 +1231,11 @@ body.zen-mode-enable {
   .mb-20 {
     margin-bottom: calc(var(--spacing) * 20);
   }
-  .mb-21 {
-    margin-bottom: calc(var(--spacing) * 21);
+  .mb-26 {
+    margin-bottom: calc(var(--spacing) * 26);
+  }
+  .mb-28 {
+    margin-bottom: calc(var(--spacing) * 28);
   }
   .mb-\[2px\] {
     margin-bottom: 2px;
@@ -1647,9 +1649,6 @@ body.zen-mode-enable {
   }
   .items-end {
     align-items: flex-end;
-  }
-  .items-start {
-    align-items: flex-start;
   }
   .justify-between {
     justify-content: space-between;
@@ -2191,23 +2190,8 @@ body.zen-mode-enable {
   .pb-6 {
     padding-bottom: calc(var(--spacing) * 6);
   }
-  .pb-7 {
-    padding-bottom: calc(var(--spacing) * 7);
-  }
-  .pb-8 {
-    padding-bottom: calc(var(--spacing) * 8);
-  }
   .pb-10 {
     padding-bottom: calc(var(--spacing) * 10);
-  }
-  .pb-11 {
-    padding-bottom: calc(var(--spacing) * 11);
-  }
-  .pb-12 {
-    padding-bottom: calc(var(--spacing) * 12);
-  }
-  .pb-21 {
-    padding-bottom: calc(var(--spacing) * 21);
   }
   .pb-24 {
     padding-bottom: calc(var(--spacing) * 24);
@@ -3411,9 +3395,9 @@ body.zen-mode-enable {
       padding-inline: calc(var(--spacing) * 28);
     }
   }
-  .xl\:text-\[160px\] {
+  .xl\:text-\[152px\] {
     @media (width >= 1280px) {
-      font-size: 160px;
+      font-size: 152px;
     }
   }
   .\32 xl\:block {
