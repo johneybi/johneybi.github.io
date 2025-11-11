@@ -21,20 +21,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const typingSecondElement = document.getElementById("typingSecond");
     if (typingSecondElement) {
-        gsap.matchMedia().add({
-            // 1280px 초과 뷰포트
-            isDesktop: "(min-width: 1281px)",
-            // 1280px 이하 뷰포트
-            isMobile: "(max-width: 1280px)"
-        }, (context) => {
-            let { isDesktop } = context.conditions;
-
-            gsap.to(typingSecondElement, {
-                delay: 1.4,
-                duration: 1.5,
-                x: isDesktop ? 268 : 160, // 화면 너비에 따라 x값 변경
-                ease: "power2.inOut"
-            });
+        gsap.to(typingSecondElement, {
+            delay: 1.4,
+            duration: 1.5,
+            x: '20vw', // Use viewport width unit
+            ease: "power2.inOut"
         });
     }
 
