@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         gsap.to(typingSecondElement, {
             delay: 1.4,
             duration: 1.5,
-            x: '20vw', // Use viewport width unit
+            x: '10vw', // Use viewport width unit
             ease: "power2.inOut"
         });
     }
