@@ -2172,6 +2172,9 @@ body.zen-mode-enable {
   .pt-40 {
     padding-top: calc(var(--spacing) * 40);
   }
+  .pt-60 {
+    padding-top: calc(var(--spacing) * 60);
+  }
   .pt-90 {
     padding-top: calc(var(--spacing) * 90);
   }
@@ -3403,6 +3406,11 @@ body.zen-mode-enable {
       padding-inline-start: calc(var(--spacing) * 8);
     }
   }
+  .lg\:pb-1 {
+    @media (width >= 1024px) {
+      padding-bottom: calc(var(--spacing) * 1);
+    }
+  }
   .lg\:text-\[98px\] {
     @media (width >= 1024px) {
       font-size: 98px;
@@ -3416,6 +3424,11 @@ body.zen-mode-enable {
   .xl\:mx-28 {
     @media (width >= 1280px) {
       margin-inline: calc(var(--spacing) * 28);
+    }
+  }
+  .xl\:h-\[880px\] {
+    @media (width >= 1280px) {
+      height: 880px;
     }
   }
   .xl\:w-1\/4 {
@@ -3436,6 +3449,16 @@ body.zen-mode-enable {
   .xl\:px-28 {
     @media (width >= 1280px) {
       padding-inline: calc(var(--spacing) * 28);
+    }
+  }
+  .xl\:pt-90 {
+    @media (width >= 1280px) {
+      padding-top: calc(var(--spacing) * 90);
+    }
+  }
+  .xl\:pb-2 {
+    @media (width >= 1280px) {
+      padding-bottom: calc(var(--spacing) * 2);
     }
   }
   .xl\:text-\[152px\] {
