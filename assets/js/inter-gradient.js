@@ -78,8 +78,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // ===== 역회전 설정 (중심축 기준) =====
         counterRotation: {
-            enabled: true,
-            ellipses: [1, 2],                    // 역회전할 타원 인덱스
+            enabled: null,
+            ellipses: [1, 3],                    // 역회전할 타원 인덱스
             mode: 'orbit',                       // 'orbit' = 중심축 기준 공전
             speed: 1.0,                          // 역회전 속도 배율
             svgCenter: { x: 1237, y: 870.5 }     // SVG viewBox 중심점
