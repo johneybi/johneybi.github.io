@@ -39,28 +39,6 @@ body {
   perspective: 1000px;
 }
 
-#borderLine {
-  position: relative;
-}
-
-#borderLine::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  /* border-b-2와 동일한 두께 */
-  background-color: #e7e5e4;
-  /* border-stone-200 색상 */
-  --scale-x: 0;
-  /* CSS 변수 초기값 설정 */
-  transform: scaleX(var(--scale-x));
-  /* CSS 변수를 transform에 연결 */
-  transform-origin: left;
-  /* 왼쪽을 기준으로 크기 변경 */
-}
-
 .herobase {
   background: linear-gradient(90deg, #000 5%, #b6a498 70%);
   z-index: 1;
@@ -79,7 +57,7 @@ body {
       0) scale(5.8) rotate(var(--mouse-angle, 0deg));
 
   /* 강한 blur로 업스케일링 아티팩트 숨김 */
-  filter: blur(40px);
+  filter: blur(28px);
 
   /* GPU 최적화 강화 */
   will-change: transform, filter;
@@ -91,6 +69,11 @@ body {
   pointer-events: none;
   /* 이벤트 처리 부담 감소 */
   z-index: 2;
+}
+
+.interactive-svg-background g g {
+  transform-origin: center;
+  transform: rotate(calc(var(--mouse-angle, 0deg) * -1)) scale(var(--ellipse-scale, 1));
 }
 
 .hero-container {
