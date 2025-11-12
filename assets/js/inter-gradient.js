@@ -1,80 +1,105 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const animatedElement = document.querySelector('.interactive-svg-background');
+/**
+ * ==============================================
+ * INTERACTIVE SVG BACKGROUND CONTROLLER V3
+ * ==============================================
+ * 
+ * 개선사항:
+ * 1. 부드럽고 느린 회전 (회전 범위 축소)
+ * 2. 전체 SVG 회전 + 2개 타원만 역회전 (중심축 기준)
+ * 3. 매우 부드러운 보간으로 눈의 피로 감소
+ */
 
+document.addEventListener('DOMContentLoaded', function () {
+    // ==============================================
+    // DOM & ENVIRONMENT
+    // ==============================================
+
+    const animatedElement = document.querySelector('.interactive-svg-background');
     if (!animatedElement) return;
 
     const isMobile = ('ontouchstart' in window && navigator.maxTouchPoints > 0) || window.innerWidth < 992;
 
-    // 상태 변수들
+    // ==============================================
+    // STATE MANAGEMENT
+    // ==============================================
+
     let targetAngle = 0;
     let currentAngle = 0;
     let targetX = 10, currentX = 10;
     let targetY = 15, currentY = 15;
     let velocityX = 0, velocityY = 0;
-    let targetDistance = 0.5;  // 0이 아닌 0.5로 초기화 (중간값)
-    let currentDistance = 0.5;  // 0이 아닌 0.5로 초기화 (중간값)
-    let scaleFactor = 1;  // 기본 scale 1 (변화 없음)
+    let targetDistance = 0.5;
+    let currentDistance = 0.5;
+    let scaleFactor = 1;
 
-    // 초기값을 즉시 적용 (기존 코드에 추가)
+    // 초기값 적용
     animatedElement.style.setProperty('--mouse-angle', `${currentAngle}deg`);
     animatedElement.style.setProperty('--x-offset', `${currentX}vw`);
     animatedElement.style.setProperty('--y-offset', `${currentY}vw`);
-    animatedElement.style.setProperty('--ellipse-scale', '1'); // 추가
+    animatedElement.style.setProperty('--ellipse-scale', '1');
 
-    // 설정값
+    // ==============================================
+    // CONFIGURATION
+    // ==============================================
+
     const CONFIG = {
-        smoothingFactor: 0.1,        // 0.05 → 0.12 (더 빠른 반응)
-        maxSpeedPerFrame: 2,        // 1.5 → 3.5 (최대 속도 증가)
-        historySize: 8,               // 8 → 5 (더 즉각적인 반응)
-        historyCutoff: 50,            // 100 → 50ms (더 최근 데이터만 사용)
+        smoothingFactor: 0.06,          // 매우 부드러운 보간
+        maxSpeedPerFrame: 1.2,          // 느린 최대 속도
+        historySize: 8,
+        historyCutoff: 50,
         animationBoundary: 880,
         centerY: 440,
-        springStrength: 0.02,        // 0.015 → 0.025 (더 강한 스프링)
-        damping: 0.85,                // 0.9 → 0.85 (덜 끈적임)
-        velocityDecay: 0.95,          // 0.9 → 0.95 (속도 유지)
-        mobileRotationSpeed: 0.2,
+        springStrength: 0.015,
+        damping: 0.92,
+        velocityDecay: 0.95,
+        mobileRotationSpeed: 0.15,
         updateThreshold: 0.01,
         mobileFrameSkip: 2,
-        cssUpdateDelay: 24,            // 16 → 8ms (120fps 타겟)
-        // 새로운 설정 추가
-        responsiveness: 0.3,          // 즉각 반응 비율
-        predictiveFactor: 0.15,
-        // 거리 관련 설정 수정
-        maxDistance: 400,             // 최대 거리 (픽셀)
-        scaleRange: 1,             // 스케일 변화 범위 (15%)
-        distanceEasing: 0.12          // 거리 변화 smoothing
+        cssUpdateDelay: 16,
+
+        // 회전 범위 제한
+        rotationScale: 1,             // 각도를 30%만 적용
+        maxRotation: 180,                // 최대 ±60도
+
+        responsiveness: 0.25,
+        predictiveFactor: 0.1,
+
+        // 거리 관련
+        maxDistance: 400,
+        scaleRange: 1,
+        distanceEasing: 0.12,
+
+        // 역회전 타원
+        counterRotationEllipses: [1, 4],
+        counterRotationMultiplier: 1.0
     };
 
-    // 애니메이션 상태
+    // ==============================================
+    // STATE VARIABLES
+    // ==============================================
+
     let animationFrameId = null;
     let lastMouseY = 0;
     let isAnimating = false;
 
-    // 각도 추적 (데스크톱 전용)
     const angleHistory = [];
     let lastTargetAngle = 0;
     let angleVelocity = 0;
 
-    // 성능 최적화를 위한 캐시
     let windowWidth = window.innerWidth;
     let centerX = windowWidth / 2;
 
-    // 성능 최적화: 프레임 스킵 카운터
     let frameCounter = 0;
-
-    // 성능 최적화: 마지막 CSS 업데이트 시간
     let lastCSSUpdate = 0;
 
-    // 성능 최적화: 이전 값 캐시
     let lastAngleValue = null;
     let lastXValue = null;
     let lastYValue = null;
-    let lastScaleValue = null;  // 이 줄 추가!
+    let lastScaleValue = null;
 
-    const handleResize = debounce(() => {
-        windowWidth = window.innerWidth;
-        centerX = windowWidth / 2;
-    }, 250);
+    // ==============================================
+    // UTILITY FUNCTIONS
+    // ==============================================
 
     function debounce(func, wait) {
         let timeout;
@@ -88,7 +113,15 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
-    // 성능 최적화: 삼각함수 캐시
+    const handleResize = debounce(() => {
+        windowWidth = window.innerWidth;
+        centerX = windowWidth / 2;
+    }, 250);
+
+    // ==============================================
+    // TRIGONOMETRY CACHE
+    // ==============================================
+
     const cosCache = new Map();
     const sinCache = new Map();
 
@@ -108,31 +141,47 @@ document.addEventListener('DOMContentLoaded', function () {
         return sinCache.get(key);
     }
 
+    // ==============================================
+    // MOUSE MOVE HANDLER
+    // ==============================================
+
     function handleMouseMove(event) {
         const deltaX = event.clientX - centerX;
         const deltaY = event.clientY - CONFIG.centerY;
 
-        // 중심으로부터의 거리 계산
+        // 거리 계산
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-        // 거리를 0-1 범위로 정규화 (0 = 중앙, 1 = 가장자리)
         targetDistance = Math.min(distance / CONFIG.maxDistance, 1);
 
+        // 각도 계산
         const angleInRadians = Math.atan2(deltaY, deltaX);
         const angleInDegrees = angleInRadians * (180 / Math.PI);
-        const normalizedAngle = (angleInDegrees + 90 + 360) % 360;
+        let normalizedAngle = (angleInDegrees + 90 + 360) % 360;
 
-        const now = performance.now(); // Date.now() 대신 더 정밀한 타이머
+        // ===== 회전량 제한 (핵심) =====
+        // 0-360도를 -180 ~ 180도로 변환
+        if (normalizedAngle > 180) {
+            normalizedAngle = normalizedAngle - 360;
+        }
 
-        // 즉각적인 반응을 위한 직접 적용
+        // 회전량 스케일링
+        normalizedAngle = normalizedAngle * CONFIG.rotationScale;
+
+        // 최대 각도 제한
+        normalizedAngle = Math.max(-CONFIG.maxRotation, Math.min(CONFIG.maxRotation, normalizedAngle));
+
+        // 다시 0-360 범위로 변환
+        normalizedAngle = (normalizedAngle + 360) % 360;
+
+        const now = performance.now();
+
+        // 즉각 반응
         const instantResponse = normalizedAngle * CONFIG.responsiveness;
         const smoothedResponse = targetAngle * (1 - CONFIG.responsiveness);
 
         angleHistory.push({ angle: normalizedAngle, timestamp: now });
 
-        // 더 효율적인 배열 관리
-        const maxHistorySize = CONFIG.historySize;
-        if (angleHistory.length > maxHistorySize) {
+        if (angleHistory.length > CONFIG.historySize) {
             angleHistory.shift();
         }
 
@@ -141,13 +190,12 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // 가중치 계산 최적화
+        // 가중 평균
         let weightedSumX = 0, weightedSumY = 0;
         const historyLength = angleHistory.length;
 
-        // 최근 값에 더 큰 가중치
         for (let i = 0; i < historyLength; i++) {
-            const weight = Math.pow((i + 1) / historyLength, 2); // 제곱으로 최근값 강조
+            const weight = Math.pow((i + 1) / historyLength, 2);
             const rad = angleHistory[i].angle * Math.PI / 180;
             weightedSumX += getCachedCos(rad) * weight;
             weightedSumY += getCachedSin(rad) * weight;
@@ -156,30 +204,29 @@ document.addEventListener('DOMContentLoaded', function () {
         const avgAngle = Math.atan2(weightedSumY, weightedSumX) * 180 / Math.PI;
         const smoothedAngle = (avgAngle + 360) % 360;
 
-        // 움직임 예측
+        // 예측
         if (angleHistory.length >= 3) {
             const recent = angleHistory[historyLength - 1].angle;
             const previous = angleHistory[historyLength - 2].angle;
             let velocity = recent - previous;
 
-            // 각도 차이 정규화
             if (velocity > 180) velocity -= 360;
             if (velocity < -180) velocity += 360;
 
-            // 예측값 추가
             targetAngle = smoothedAngle + velocity * CONFIG.predictiveFactor;
         } else {
             targetAngle = smoothedAngle;
         }
-        // 즉각 반응 혼합
+
+        // 혼합
         targetAngle = targetAngle * 0.7 + normalizedAngle * 0.3;
     }
 
-    // 이전 값 캐시에 추가
-    let lastDistanceValue = null;
+    // ==============================================
+    // CSS UPDATE
+    // ==============================================
 
     function updateCSS(forceUpdate = false) {
-
         const now = performance.now();
 
         if (!forceUpdate && now - lastCSSUpdate < CONFIG.cssUpdateDelay) {
@@ -207,14 +254,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (scaleChanged || angleChanged) {
                 const ellipseGroups = animatedElement.querySelectorAll('.ellipse-group');
 
-                const disperseFactor = (currentDistance - 0.5) * 2; // -1 ~ 1 범위
-                console.log('disperseFactor:', disperseFactor, 'currentDistance:', currentDistance);
+                const disperseFactor = (currentDistance - 0.5) * 2;
 
-                // SVG viewBox="-1000 -900 4474 3541"의 실제 중심점
-                // 중심 X = -1000 + (4474 / 2) = 1237
-                // 중심 Y = -900 + (3541 / 2) = 870.5
                 const centerX = 1237;
-                const centerY = 870.5; // 820이 아니라 870.5
+                const centerY = 870.5;
 
                 ellipseGroups.forEach((group, index) => {
                     const origin = group.style.transformOrigin.split(' ');
@@ -224,38 +267,43 @@ document.addEventListener('DOMContentLoaded', function () {
                     const dx = ox - centerX;
                     const dy = oy - centerY;
 
-                    // 부모 SVG가 5.8배 확대되어 있으므로, 이동량을 5.8로 나눔
-                    // scaleRange 0.15일 때 실제로 15% 움직이도록
                     const scaleDivisor = 5.8;
                     const moveAmount = CONFIG.scaleRange / scaleDivisor;
 
                     const translateX = dx * disperseFactor * moveAmount;
                     const translateY = dy * disperseFactor * moveAmount;
 
-                    // translate를 먼저 적용 (회전 전에 이동)
-                    const transformValue = `translate(${translateX}px, ${translateY}px) rotate(${-currentAngle}deg)`;
-                    group.style.transform = transformValue;
+                    // ===== 역회전 로직 (중심축 기준) =====
+                    let rotation;
 
-                    // 디버깅용
-                    if (index === 0) { // 첫 번째 타원만 로그
-                        console.log(`disperseFactor: ${disperseFactor.toFixed(2)}, moveAmount: ${moveAmount.toFixed(3)}, translateX: ${translateX.toFixed(2)}px`);
+                    if (CONFIG.counterRotationEllipses.includes(index)) {
+                        // 역회전 타원: 부모 회전 상쇄 + 반대 방향 회전
+                        rotation = -currentAngle * 2 * CONFIG.counterRotationMultiplier;
+                    } else {
+                        // 일반 타원: 부모 회전만 상쇄
+                        rotation = -currentAngle;
                     }
+
+                    const transformValue = `translate(${translateX}px, ${translateY}px) rotate(${rotation}deg)`;
+                    group.style.transform = transformValue;
                 });
             }
             lastCSSUpdate = now;
         }
-
     }
 
+    // ==============================================
+    // ANIMATION LOOP
+    // ==============================================
+
     function animate() {
-        // 성능 최적화: 모바일에서 프레임 스킵
         if (isMobile && ++frameCounter % CONFIG.mobileFrameSkip !== 0) {
             animationFrameId = requestAnimationFrame(animate);
             return;
         }
 
         if (isMobile) {
-            // --- 모바일 전용 로직 ---
+            // 모바일 로직
             currentAngle += CONFIG.mobileRotationSpeed;
 
             const angleInRadians = currentAngle * Math.PI / 180;
@@ -270,30 +318,27 @@ document.addEventListener('DOMContentLoaded', function () {
             currentX = getCachedCos(angleInRadians) * radiusX;
             currentY = 15 + getCachedSin(angleInRadians) * radiusY - smoothProgress * 10;
 
-            // 모바일에서도 scale 변화 (선택사항)
             const mobileProgress = normalizedAngle / 360;
             currentDistance = 0.5 + 0.5 * Math.sin(mobileProgress * Math.PI * 2);
             scaleFactor = 1 + (currentDistance - 0.5) * CONFIG.scaleRange * 2;
 
         } else {
-            // --- 데스크톱 로직 ---
+            // 데스크톱 로직
 
             // 거리 보간
             currentDistance += (targetDistance - currentDistance) * CONFIG.distanceEasing;
-
-            // scale 계산
             scaleFactor = 1 + (currentDistance - 0.5) * CONFIG.scaleRange * 2;
 
-            // 기존 각도 보간 로직
+            // 각도 보간
             const distance = Math.abs(targetAngle - currentAngle);
 
             let adaptiveFactor;
             if (distance > 90) {
-                adaptiveFactor = 0.25;
+                adaptiveFactor = 0.15;
             } else if (distance > 45) {
-                adaptiveFactor = 0.18;
+                adaptiveFactor = 0.10;
             } else if (distance > 20) {
-                adaptiveFactor = 0.12;
+                adaptiveFactor = 0.08;
             } else {
                 adaptiveFactor = CONFIG.smoothingFactor;
             }
@@ -303,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (deltaAngle < -180) deltaAngle += 360;
 
             const acceleration = deltaAngle * 0.01;
-            angleVelocity = (angleVelocity + acceleration) * 0.92;
+            angleVelocity = (angleVelocity + acceleration) * CONFIG.damping;
 
             let step = deltaAngle * adaptiveFactor + angleVelocity;
             step = Math.max(-CONFIG.maxSpeedPerFrame, Math.min(step, CONFIG.maxSpeedPerFrame));
@@ -323,36 +368,30 @@ document.addEventListener('DOMContentLoaded', function () {
             const newTargetX = getCachedCos(angleInRadians) * radiusX;
             const newTargetY = 15 + getCachedSin(angleInRadians) * radiusY - smoothProgress * 10;
 
-            const positionFactor = 0.15;
+            const positionFactor = 0.10;
             currentX += (newTargetX - currentX) * positionFactor;
             currentY += (newTargetY - currentY) * positionFactor;
         }
 
-        // CSS 업데이트
         updateCSS();
         animationFrameId = requestAnimationFrame(animate);
     }
+
+    // ==============================================
+    // ANIMATION CONTROL
+    // ==============================================
 
     function checkAndToggle() {
         const scrollY = window.scrollY || window.pageYOffset;
         const boundaryCheck = isMobile ? scrollY : (scrollY + lastMouseY);
         const shouldAnimate = boundaryCheck <= CONFIG.animationBoundary;
 
-        console.log('checkAndToggle:', {
-            scrollY,
-            lastMouseY,
-            boundaryCheck,
-            shouldAnimate,
-            isAnimating,
-            animationBoundary: CONFIG.animationBoundary
-        });
-
         if (shouldAnimate && !isAnimating) {
-            console.log('Starting animation...');
+            console.log('✨ Animation activated');
             isAnimating = true;
             animate();
         } else if (!shouldAnimate && isAnimating) {
-            console.log('Stopping animation...');
+            console.log('💤 Animation paused');
             isAnimating = false;
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
@@ -361,10 +400,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // ==============================================
+    // EVENT LISTENERS
+    // ==============================================
 
-
-
-    // 성능 최적화: passive 이벤트 리스너
     const passiveSupported = (() => {
         let supported = false;
         try {
@@ -385,14 +424,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const absoluteMouseY = scrollY + event.clientY;
 
             if (absoluteMouseY <= CONFIG.animationBoundary) {
-                // 즉시 처리
                 handleMouseMove(event);
 
-                // throttle 대신 즉시 처리 + 중복 방지
                 if (mouseThrottle) return;
                 mouseThrottle = setTimeout(() => {
                     mouseThrottle = null;
-                }, 8); // 8ms (약 120fps)
+                }, 16);
             }
             checkAndToggle();
         };
@@ -407,21 +444,50 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // ==============================================
+    // DEBUG INTERFACE
+    // ==============================================
 
-    // 디버깅용 - 전역 스코프에 노출
     window.debugAnimation = {
-        animate: animate,
-        checkAndToggle: checkAndToggle,
-        isAnimating: () => isAnimating,
+        state: () => ({
+            currentAngle,
+            targetAngle,
+            currentDistance,
+            targetDistance,
+            currentX,
+            currentY,
+            scaleFactor
+        }),
         config: CONFIG,
+        isAnimating: () => isAnimating,
         forceStart: () => {
             isAnimating = true;
             animate();
+        },
+        forceStop: () => {
+            isAnimating = false;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        },
+        setRotationScale: (scale) => {
+            CONFIG.rotationScale = scale;
+            console.log('Rotation scale:', scale);
+        },
+        setCounterRotationEllipses: (indices) => {
+            CONFIG.counterRotationEllipses = indices;
+            console.log('Counter-rotation ellipses:', indices);
         }
     };
 
-    // 초기 체크 강제 실행
+    // ==============================================
+    // INITIALIZATION
+    // ==============================================
+
     checkAndToggle();
 
-
+    console.log('🎨 Enhanced interactive background v3 initialized', {
+        isMobile,
+        rotationScale: CONFIG.rotationScale,
+        maxRotation: CONFIG.maxRotation,
+        counterRotatingEllipses: CONFIG.counterRotationEllipses
+    });
 });

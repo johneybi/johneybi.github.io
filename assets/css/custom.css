@@ -1,18 +1,34 @@
+/**
+ * ==============================================
+ * TYPOGRAPHY & FONT SYSTEM
+ * ==============================================
+ * 글꼴 우선순위를 시스템 폰트 스택으로 구성하여
+ * 로딩 성능과 다국어 지원을 최적화
+ */
 :root {
+  /* 한글/영문 혼용 기본 폰트 */
   --font-base: 'Wanted Sans Variable',
     -apple-system, BlinkMacSystemFont, system-ui, Roboto,
     'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
     'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     sans-serif;
 
+  /* 세리프 장식 폰트 */
   --font-ivymode: 'IvyMode', serif;
+
+  /* 기하학적 산세리프 폰트 */
   --font-futura: 'Futura-100', sans-serif;
 
+  /* 영문 전용 폰트 스택 */
   --font-eng: azo-sans-web,
     -apple-system, BlinkMacSystemFont, system-ui, Roboto,
     'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
     'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     sans-serif;
+
+  /* 성능 최적화를 위한 트랜지션 타이밍 */
+  --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-duration: 0.3s;
 }
 
 body {
@@ -27,23 +43,54 @@ body {
   font-family: var(--font-futura);
 }
 
+/**
+ * ==============================================
+ * FULL-WIDTH BACKGROUND CONTAINER
+ * ==============================================
+ * 뷰포트 전체를 채우는 배경 컨테이너
+ * contain: strict로 레이아웃 격리 및 성능 향상
+ */
 .full-width-bg {
   position: absolute;
   top: 0;
   left: 50%;
-  transform: translateX(-50%);
   width: 100vw;
+  transform: translateX(-50%);
+
+  /* 레이아웃 격리로 리플로우 최소화 */
   contain: strict;
+
+  /* 다른 콘텐츠 뒤에 배치 */
   z-index: -50;
+
+  /* 3D 변환 성능 최적화 */
   transform-style: preserve-3d;
   perspective: 1000px;
 }
 
+/**
+ * ==============================================
+ * HERO SECTION BASE
+ * ==============================================
+ * 그라디언트 배경의 히어로 섹션
+ */
 .herobase {
   background: linear-gradient(90deg, #000 5%, #b6a498 70%);
   z-index: 1;
 }
 
+/**
+ * ==============================================
+ * INTERACTIVE SVG BACKGROUND
+ * ==============================================
+ * 마우스 움직임에 반응하는 대형 SVG 배경
+ * 
+ * 최적화 포인트:
+ * 1. will-change로 GPU 가속 활성화
+ * 2. contain으로 레이아웃/페인트 격리
+ * 3. pointer-events: none으로 이벤트 처리 부담 제거
+ * 4. scale(5.8) + blur(32px)로 저해상도 SVG를 부드럽게 확대
+ */
 .interactive-svg-background {
   position: absolute;
   top: 50%;
@@ -51,42 +98,61 @@ body {
   width: 825px;
   height: 514px;
 
-  /* 3배 × 1.8 = 5.4 scale로 원본 크기 복원 */
-  transform: translate3d(calc(-50% + var(--x-offset, 0vw)),
+  /* 중앙 정렬 + 동적 오프셋 + 스케일 + 회전 */
+  transform:
+    translate3d(calc(-50% + var(--x-offset, 0vw)),
       calc(-50% + var(--y-offset, 0vw)),
       0) scale(5.8) rotate(var(--mouse-angle, 0deg));
 
-  /* 강한 blur로 업스케일링 아티팩트 숨김 */
+  /* 강한 blur로 확대 시 생기는 픽셀레이션 제거 */
   filter: blur(28px);
 
-  /* GPU 최적화 강화 */
+  /* GPU 가속 최적화 */
   will-change: transform, filter;
   backface-visibility: hidden;
   transform-style: preserve-3d;
-  /* 추가 최적화 속성 */
+
+  /* 레이아웃/스타일/페인트 격리로 성능 향상 */
   contain: layout style paint;
-  /* 렌더링 최적화 */
+
+  /* 마우스 이벤트 무시 (상위 레이어에서 처리) */
   pointer-events: none;
-  /* 이벤트 처리 부담 감소 */
+
   z-index: 2;
 }
 
+/**
+ * SVG 내부 ellipse 그룹들의 역회전
+ * 부모의 rotate를 상쇄하여 타원들이 제자리에서 스케일만 변경되도록 함
+ */
 .interactive-svg-background g g {
   transform-origin: center;
-  transform: rotate(calc(var(--mouse-angle, 0deg) * -1)) scale(var(--ellipse-scale, 1));
+  transform:
+    rotate(calc(var(--mouse-angle, 0deg) * -1)) scale(var(--ellipse-scale, 1));
 }
 
+/**
+ * ==============================================
+ * HERO CONTAINER
+ * ==============================================
+ * 히어로 섹션의 메인 컨테이너
+ */
 .hero-container {
-  /* 이 요소에는 특별한 스타일이 필요 없습니다. 기본값으로 둡니다. */
-  width: 100vw;
-  height: 880px;
   position: relative;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  width: 100vw;
+  height: 880px;
   z-index: 3;
 }
 
+/**
+ * ==============================================
+ * DECORATIVE ELLIPSE ELEMENTS
+ * ==============================================
+ * 배경 장식용 블러 처리된 원형 요소들
+ */
 .bisque-elipse {
   border-radius: 50%;
   background: hsl(24, 17%, 65%);
@@ -101,11 +167,19 @@ body {
   z-index: 4;
 }
 
+/* 다크모드에서의 메인 타원 스타일 */
 .dark .main-elipse {
   background: #625551;
   width: 100%;
 }
 
+/**
+ * ==============================================
+ * GRAIN TEXTURE OVERLAY
+ * ==============================================
+ * 노이즈 텍스처를 color-burn 블렌드 모드로 오버레이
+ * 아날로그 필름 질감 효과
+ */
 .pattern-overlay {
   background-image: url('/img/grain.png');
   background-size: 180px auto;
@@ -115,29 +189,45 @@ body {
   z-index: 5;
 }
 
+/**
+ * ==============================================
+ * MOUSE CAPTURE AREA
+ * ==============================================
+ * 마우스 이벤트 캡처용 투명 레이어
+ * 다른 배경 요소들보다 높은 z-index로 이벤트 우선 처리
+ */
 #mouse-capture-area {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  /* 다른 배경 요소들(z-index: 1~5)보다 확실히 위에 있도록 설정 */
+  inset: 0;
+  /* top, right, bottom, left: 0의 단축 표기 */
   z-index: 99;
 }
 
+/**
+ * ==============================================
+ * HEADER & LOGO STYLES
+ * ==============================================
+ */
+
+/* 로고 SVG 크기 및 트랜지션 */
 .logo svg {
   height: 2.5rem !important;
-  /* 원하는 크기 */
   width: auto !important;
-  /* 비율 유지 */
-  transition: all 0.3s ease;
+  transition: all var(--transition-duration) ease;
 }
 
+/* 메뉴 텍스트 줄바꿈 방지 */
 .menuhide .flex-col a {
   white-space: nowrap !important;
 }
 
-/* 화면 끝에 있는 메뉴 처리 */
+/**
+ * ==============================================
+ * NESTED MENU POSITIONING
+ * ==============================================
+ * 드롭다운 메뉴 위치 제어
+ * 오른쪽 끝 메뉴들은 왼쪽으로 펼쳐짐
+ */
 .nested-menu {
   position: relative;
 }
@@ -149,49 +239,60 @@ body {
   white-space: nowrap;
 }
 
-/* 오른쪽 끝 메뉴들은 왼쪽으로 열리게 */
+/* 우측 3개 메뉴는 좌측 정렬 */
 nav>*:nth-last-child(-n+3) .menuhide {
   right: 0;
   left: auto;
 }
 
-/* blur 요소에 트랜지션 설정 */
-#menu-blur {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 0.75rem;
+/**
+ * ==============================================
+ * STICKY HEADER STYLES
+ * ==============================================
+ * 스크롤 시 변화하는 헤더 애니메이션
+ */
 
+/* 블러 배경 트랜지션 */
+#menu-blur {
+  transition: all var(--transition-duration) var(--transition-smooth);
+  border-radius: 0.75rem;
 }
 
-/* sticky 상태 스타일 */
+/* sticky 상태에서 반투명 배경 활성화 */
 .is-sticky #menu-blur {
   background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* 헤더 전체 애니메이션 */
+/* 헤더 전체 트랜지션 */
 .fixed.inset-x-0,
 .headnav {
-  transition: all 0.3s ease;
+  transition: all var(--transition-duration) ease;
 }
 
-/* sticky 상태에서 - padding 대신 left/right 값 변경! */
+/* sticky 상태에서 좌우 패딩 추가 */
 .is-sticky.fixed .headnav {
   padding-left: 1rem !important;
-  /* inset-x-0을 덮어쓰기 */
   padding-right: 1rem !important;
-  /* padding 사용하지 않음 */
 }
 
+/* sticky 상태에서 로고 축소 */
 .is-sticky .logo svg {
   height: 2.4rem !important;
-  /* 원하는 크기 */
   width: auto !important;
-  /* 비율 유지 */
 }
 
+/**
+ * ==============================================
+ * RESPONSIVE DESIGN
+ * ==============================================
+ * 태블릿 사이즈 최적화 (640px ~ 1279px)
+ */
 @media (min-width: 640px) and (max-width: 1279px) {
   .is-sticky {
     margin-left: 1.5rem !important;
     margin-right: 1.5rem !important;
-    padding: 0rem;
+    padding: 0;
   }
 }
