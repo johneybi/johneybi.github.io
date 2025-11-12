@@ -1,12 +1,12 @@
 /**
  * ==============================================
- * INTERACTIVE SVG BACKGROUND CONTROLLER V3
+ * INTERACTIVE SVG BACKGROUND CONTROLLER V4
  * ==============================================
  * 
  * 개선사항:
- * 1. 부드럽고 느린 회전 (회전 범위 축소)
- * 2. 전체 SVG 회전 + 2개 타원만 역회전 (중심축 기준)
- * 3. 매우 부드러운 보간으로 눈의 피로 감소
+ * 1. SVG 중심축 기준 역회전 (공전 효과)
+ * 2. 회전량/최대각도 자유 설정 가능
+ * 3. 부드러운 보간 유지
  */
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==============================================
 
     const CONFIG = {
-        smoothingFactor: 0.06,          // 매우 부드러운 보간
+        smoothingFactor: 0.06,          // 부드러운 보간
         maxSpeedPerFrame: 1.2,          // 느린 최대 속도
         historySize: 8,
         historyCutoff: 50,
@@ -57,9 +57,16 @@ document.addEventListener('DOMContentLoaded', function () {
         mobileFrameSkip: 2,
         cssUpdateDelay: 16,
 
-        // 회전 범위 제한
-        rotationScale: 1,             // 각도를 30%만 적용
-        maxRotation: 180,                // 최대 ±60도
+        // ===== 회전 제어 =====
+        // 옵션 1: 제한된 회전 (부드러운 움직임)
+        //rotationScale: 0.3,             // 회전량 30% (1.0 = 100% 자유 회전)
+        //maxRotation: 60,                // 최대 ±60도 (null = 제한 없음)
+        //enableRotationLimit: true,      // 제한 활성화 (false = 자유 회전)
+
+        // 옵션 2: 자유 회전 설정 예시
+        rotationScale: 1.0,           // 100% 회전
+        maxRotation: null,            // 제한 없음
+        enableRotationLimit: false,   // 제한 비활성화
 
         responsiveness: 0.25,
         predictiveFactor: 0.1,
@@ -69,9 +76,14 @@ document.addEventListener('DOMContentLoaded', function () {
         scaleRange: 1,
         distanceEasing: 0.12,
 
-        // 역회전 타원
-        counterRotationEllipses: [1, 4],
-        counterRotationMultiplier: 1.0
+        // ===== 역회전 설정 (중심축 기준) =====
+        counterRotation: {
+            enabled: true,
+            ellipses: [1, 2],                    // 역회전할 타원 인덱스
+            mode: 'orbit',                       // 'orbit' = 중심축 기준 공전
+            speed: 1.0,                          // 역회전 속도 배율
+            svgCenter: { x: 1237, y: 870.5 }     // SVG viewBox 중심점
+        }
     };
 
     // ==============================================
@@ -158,20 +170,25 @@ document.addEventListener('DOMContentLoaded', function () {
         const angleInDegrees = angleInRadians * (180 / Math.PI);
         let normalizedAngle = (angleInDegrees + 90 + 360) % 360;
 
-        // ===== 회전량 제한 (핵심) =====
-        // 0-360도를 -180 ~ 180도로 변환
-        if (normalizedAngle > 180) {
-            normalizedAngle = normalizedAngle - 360;
+        // ===== 회전량 제어 =====
+        if (CONFIG.enableRotationLimit) {
+            // -180 ~ 180도로 변환
+            if (normalizedAngle > 180) {
+                normalizedAngle = normalizedAngle - 360;
+            }
+
+            // 회전량 스케일링
+            normalizedAngle = normalizedAngle * CONFIG.rotationScale;
+
+            // 최대 각도 제한 (설정된 경우)
+            if (CONFIG.maxRotation !== null) {
+                normalizedAngle = Math.max(-CONFIG.maxRotation, Math.min(CONFIG.maxRotation, normalizedAngle));
+            }
+
+            // 다시 0-360 범위로
+            normalizedAngle = (normalizedAngle + 360) % 360;
         }
-
-        // 회전량 스케일링
-        normalizedAngle = normalizedAngle * CONFIG.rotationScale;
-
-        // 최대 각도 제한
-        normalizedAngle = Math.max(-CONFIG.maxRotation, Math.min(CONFIG.maxRotation, normalizedAngle));
-
-        // 다시 0-360 범위로 변환
-        normalizedAngle = (normalizedAngle + 360) % 360;
+        // enableRotationLimit가 false면 normalizedAngle 그대로 사용 (자유 회전)
 
         const now = performance.now();
 
@@ -252,44 +269,79 @@ document.addEventListener('DOMContentLoaded', function () {
                 lastYValue = currentY;
             }
             if (scaleChanged || angleChanged) {
-                const ellipseGroups = animatedElement.querySelectorAll('.ellipse-group');
-
-                const disperseFactor = (currentDistance - 0.5) * 2;
-
-                const centerX = 1237;
-                const centerY = 870.5;
-
-                ellipseGroups.forEach((group, index) => {
-                    const origin = group.style.transformOrigin.split(' ');
-                    const ox = parseFloat(origin[0]);
-                    const oy = parseFloat(origin[1]);
-
-                    const dx = ox - centerX;
-                    const dy = oy - centerY;
-
-                    const scaleDivisor = 5.8;
-                    const moveAmount = CONFIG.scaleRange / scaleDivisor;
-
-                    const translateX = dx * disperseFactor * moveAmount;
-                    const translateY = dy * disperseFactor * moveAmount;
-
-                    // ===== 역회전 로직 (중심축 기준) =====
-                    let rotation;
-
-                    if (CONFIG.counterRotationEllipses.includes(index)) {
-                        // 역회전 타원: 부모 회전 상쇄 + 반대 방향 회전
-                        rotation = -currentAngle * 2 * CONFIG.counterRotationMultiplier;
-                    } else {
-                        // 일반 타원: 부모 회전만 상쇄
-                        rotation = -currentAngle;
-                    }
-
-                    const transformValue = `translate(${translateX}px, ${translateY}px) rotate(${rotation}deg)`;
-                    group.style.transform = transformValue;
-                });
+                updateEllipseTransforms();
             }
             lastCSSUpdate = now;
         }
+    }
+
+    /**
+     * 타원 변환 업데이트
+     * - 분산 효과
+     * - SVG 중심축 기준 역회전 (공전)
+     */
+    function updateEllipseTransforms() {
+        const ellipseGroups = animatedElement.querySelectorAll('.ellipse-group');
+
+        const disperseFactor = (currentDistance - 0.5) * 2;
+
+        // SVG 중심점
+        const svgCenterX = CONFIG.counterRotation.svgCenter.x;
+        const svgCenterY = CONFIG.counterRotation.svgCenter.y;
+
+        ellipseGroups.forEach((group, index) => {
+            const origin = group.style.transformOrigin.split(' ');
+            const originX = parseFloat(origin[0]);
+            const originY = parseFloat(origin[1]);
+
+            // ===== 1. 분산 효과 (중심에서 멀어지기) =====
+            const dx = originX - svgCenterX;
+            const dy = originY - svgCenterY;
+
+            const scaleDivisor = 5.8;
+            const moveAmount = CONFIG.scaleRange / scaleDivisor;
+
+            const translateX = dx * disperseFactor * moveAmount;
+            const translateY = dy * disperseFactor * moveAmount;
+
+            // ===== 2. 회전 처리 =====
+            let rotation = -currentAngle; // 기본: 부모 회전 상쇄
+
+            // 역회전 타원 (중심축 기준 공전)
+            if (CONFIG.counterRotation.enabled &&
+                CONFIG.counterRotation.mode === 'orbit' &&
+                CONFIG.counterRotation.ellipses.includes(index)) {
+
+                // SVG 중심으로부터의 거리와 각도
+                const distFromCenter = Math.sqrt(dx * dx + dy * dy);
+                const angleFromCenter = Math.atan2(dy, dx) * (180 / Math.PI);
+
+                // 역회전: 중심축 기준으로 반대 방향 공전
+                // currentAngle만큼 반대로 회전
+                const counterRotationAngle = -currentAngle * 2 * CONFIG.counterRotation.speed;
+                const newAngle = (angleFromCenter + counterRotationAngle) * (Math.PI / 180);
+
+                // 새로운 위치 계산 (공전)
+                const newX = Math.cos(newAngle) * distFromCenter;
+                const newY = Math.sin(newAngle) * distFromCenter;
+
+                // 원래 위치에서 새 위치로의 변위
+                const orbitTranslateX = (newX - dx) + translateX;
+                const orbitTranslateY = (newY - dy) + translateY;
+
+                // 타원 자체는 회전하지 않음 (부모 회전만 상쇄)
+                rotation = -currentAngle;
+
+                const transformValue = `translate(${orbitTranslateX}px, ${orbitTranslateY}px) rotate(${rotation}deg)`;
+                group.style.transform = transformValue;
+            } else {
+                // 일반 타원: 분산만 적용
+                const transformValue = `translate(${translateX}px, ${translateY}px) rotate(${rotation}deg)`;
+                group.style.transform = transformValue;
+            }
+        });
+
+        lastScaleValue = scaleFactor;
     }
 
     // ==============================================
@@ -460,6 +512,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }),
         config: CONFIG,
         isAnimating: () => isAnimating,
+
+        // 애니메이션 제어
         forceStart: () => {
             isAnimating = true;
             animate();
@@ -468,13 +522,46 @@ document.addEventListener('DOMContentLoaded', function () {
             isAnimating = false;
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
         },
+
+        // ===== 회전 제어 함수 =====
+        // 자유 회전 활성화
+        enableFreeRotation: () => {
+            CONFIG.rotationScale = 1.0;
+            CONFIG.maxRotation = null;
+            CONFIG.enableRotationLimit = false;
+            console.log('✅ Free rotation enabled (100%, no limit)');
+        },
+
+        // 제한된 회전 활성화
+        enableLimitedRotation: (scale = 0.3, maxAngle = 60) => {
+            CONFIG.rotationScale = scale;
+            CONFIG.maxRotation = maxAngle;
+            CONFIG.enableRotationLimit = true;
+            console.log(`✅ Limited rotation enabled (${scale * 100}%, ±${maxAngle}°)`);
+        },
+
+        // 회전량만 조절 (제한 유지)
         setRotationScale: (scale) => {
             CONFIG.rotationScale = scale;
-            console.log('Rotation scale:', scale);
+            console.log(`Rotation scale: ${scale * 100}%`);
         },
+
+        // 최대 각도만 조절
+        setMaxRotation: (angle) => {
+            CONFIG.maxRotation = angle;
+            console.log(`Max rotation: ±${angle}°`);
+        },
+
+        // 역회전 타원 설정
         setCounterRotationEllipses: (indices) => {
-            CONFIG.counterRotationEllipses = indices;
+            CONFIG.counterRotation.ellipses = indices;
             console.log('Counter-rotation ellipses:', indices);
+        },
+
+        // 역회전 속도 조절
+        setCounterRotationSpeed: (speed) => {
+            CONFIG.counterRotation.speed = speed;
+            console.log('Counter-rotation speed:', speed);
         }
     };
 
@@ -484,10 +571,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     checkAndToggle();
 
-    console.log('🎨 Enhanced interactive background v3 initialized', {
+    console.log('🎨 Enhanced interactive background v4 initialized');
+    console.log('📊 Current settings:', {
         isMobile,
-        rotationScale: CONFIG.rotationScale,
-        maxRotation: CONFIG.maxRotation,
-        counterRotatingEllipses: CONFIG.counterRotationEllipses
+        rotationMode: CONFIG.enableRotationLimit ? 'LIMITED' : 'FREE',
+        rotationScale: `${CONFIG.rotationScale * 100}%`,
+        maxRotation: CONFIG.maxRotation ? `±${CONFIG.maxRotation}°` : 'UNLIMITED',
+        counterRotating: CONFIG.counterRotation.ellipses,
+        counterRotationMode: CONFIG.counterRotation.mode
     });
+    console.log('🛠️ Debug commands:');
+    console.log('  debugAnimation.enableFreeRotation() - 자유 회전 (100%)');
+    console.log('  debugAnimation.enableLimitedRotation(0.3, 60) - 제한 회전');
+    console.log('  debugAnimation.setCounterRotationSpeed(0.5) - 역회전 속도');
 });
