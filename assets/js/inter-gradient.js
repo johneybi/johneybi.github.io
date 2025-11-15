@@ -1,14 +1,3 @@
-/**
- * ==============================================
- * INTERACTIVE SVG BACKGROUND CONTROLLER V4
- * ==============================================
- * 
- * 개선사항:
- * 1. SVG 중심축 기준 역회전 (공전 효과)
- * 2. 회전량/최대각도 자유 설정 가능
- * 3. 부드러운 보간 유지
- */
-
 document.addEventListener('DOMContentLoaded', function () {
     // ==============================================
     // DOM & ENVIRONMENT
@@ -17,22 +6,100 @@ document.addEventListener('DOMContentLoaded', function () {
     const animatedElement = document.querySelector('.interactive-svg-background');
     if (!animatedElement) return;
 
-    const isMobile = ('ontouchstart' in window && navigator.maxTouchPoints > 0) || window.innerWidth < 992;
+    // 반응형 breakpoint 정의
+    const BREAKPOINTS = {
+        mobile: 768,
+        tablet: 1024,
+        desktop: 1440
+    };
+
+    // 디바이스 타입 감지
+    const getDeviceType = () => {
+        const width = window.innerWidth;
+        if (width <= BREAKPOINTS.mobile) return 'mobile';
+        if (width <= BREAKPOINTS.tablet) return 'tablet';
+        return 'desktop';
+    };
+
+    // 디바이스 상태 관리 객체
+    const deviceState = {
+        type: getDeviceType(),
+        get isMobile() { return this.type === 'mobile'; },
+        get isTablet() { return this.type === 'tablet'; },
+        get isDesktop() { return this.type === 'desktop'; },
+
+        update() {
+            const newType = getDeviceType();
+            if (newType !== this.type) {
+                this.type = newType;
+                return true;
+            }
+            return false;
+        }
+    };
+
+    // ==============================================
+    // RESPONSIVE CONFIGURATION
+    // ==============================================
+
+    const RESPONSIVE_CONFIG = {
+        mobile: {
+            scale: 3.5,
+            blur: 20,
+            offsetMultiplier: 0.6,
+            rotationSpeed: 0.3,
+            maxOffset: { x: 8, y: 12 },
+            radiusX: 6,
+            radiusY: 10
+        },
+        tablet: {
+            scale: 4.5,
+            blur: 24,
+            offsetMultiplier: 0.8,
+            rotationSpeed: 0.12,
+            maxOffset: { x: 9, y: 13 },
+            radiusX: 8,
+            radiusY: 12
+        },
+        desktop: {
+            scale: 5.8,
+            blur: 28,
+            offsetMultiplier: 1,
+            rotationSpeed: 0.15,
+            maxOffset: { x: 10, y: 15 },
+            radiusX: 10,
+            radiusY: 14
+        }
+    };
+
+    // 현재 디바이스 설정 가져오기
+    const getCurrentConfig = () => RESPONSIVE_CONFIG[deviceState.type];
 
     // ==============================================
     // STATE MANAGEMENT
     // ==============================================
 
+    let currentConfig = getCurrentConfig();
     let targetAngle = 0;
     let currentAngle = 0;
-    let targetX = 10, currentX = 10;
-    let targetY = 15, currentY = 15;
+    let targetX = currentConfig.maxOffset.x;
+    let currentX = currentConfig.maxOffset.x;
+    let targetY = currentConfig.maxOffset.y;
+    let currentY = currentConfig.maxOffset.y;
     let velocityX = 0, velocityY = 0;
     let targetDistance = 0.5;
     let currentDistance = 0.5;
     let scaleFactor = 1;
 
+    // 반응형 스케일 적용 함수
+    const updateResponsiveScale = () => {
+        const config = getCurrentConfig();
+        animatedElement.style.setProperty('--responsive-scale', config.scale);
+        animatedElement.style.setProperty('--responsive-blur', `${config.blur}px`);
+    };
+
     // 초기값 적용
+    updateResponsiveScale();
     animatedElement.style.setProperty('--mouse-angle', `${currentAngle}deg`);
     animatedElement.style.setProperty('--x-offset', `${currentX}vw`);
     animatedElement.style.setProperty('--y-offset', `${currentY}vw`);
@@ -43,8 +110,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==============================================
 
     const CONFIG = {
-        smoothingFactor: 0.06,          // 부드러운 보간
-        maxSpeedPerFrame: 1.2,          // 느린 최대 속도
+        smoothingFactor: 0.06,
+        maxSpeedPerFrame: 1.2,
         historySize: 8,
         historyCutoff: 50,
         animationBoundary: 880,
@@ -52,37 +119,27 @@ document.addEventListener('DOMContentLoaded', function () {
         springStrength: 0.015,
         damping: 0.92,
         velocityDecay: 0.95,
-        mobileRotationSpeed: 0.15,
         updateThreshold: 0.01,
         mobileFrameSkip: 2,
         cssUpdateDelay: 16,
 
-        // ===== 회전 제어 =====
-        // 옵션 1: 제한된 회전 (부드러운 움직임)
-        //rotationScale: 0.3,             // 회전량 30% (1.0 = 100% 자유 회전)
-        //maxRotation: 60,                // 최대 ±60도 (null = 제한 없음)
-        //enableRotationLimit: true,      // 제한 활성화 (false = 자유 회전)
-
-        // 옵션 2: 자유 회전 설정 예시
-        rotationScale: 1.0,           // 100% 회전
-        maxRotation: null,            // 제한 없음
-        enableRotationLimit: false,   // 제한 비활성화
+        rotationScale: 1.0,
+        maxRotation: null,
+        enableRotationLimit: false,
 
         responsiveness: 0.25,
         predictiveFactor: 0.1,
 
-        // 거리 관련
         maxDistance: 400,
         scaleRange: 1,
         distanceEasing: 0.12,
 
-        // ===== 역회전 설정 (중심축 기준) =====
         counterRotation: {
             enabled: null,
-            ellipses: [1, 3],                    // 역회전할 타원 인덱스
-            mode: 'orbit',                       // 'orbit' = 중심축 기준 공전
-            speed: 1.0,                          // 역회전 속도 배율
-            svgCenter: { x: 1237, y: 870.5 }     // SVG viewBox 중심점
+            ellipses: [1, 3],
+            mode: 'orbit',
+            speed: 1.0,
+            svgCenter: { x: 1237, y: 870.5 }
         }
     };
 
@@ -125,7 +182,23 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
+    // 기존 handleResize를 수정하여 반응형 기능 포함
     const handleResize = debounce(() => {
+        // 디바이스 타입 체크 및 업데이트
+        if (deviceState.update()) {
+            currentConfig = getCurrentConfig();
+
+            // 스케일 업데이트
+            updateResponsiveScale();
+
+            // 오프셋 범위 업데이트
+            targetX = currentX = currentConfig.maxOffset.x;
+            targetY = currentY = currentConfig.maxOffset.y;
+
+            console.log(`📱 Device type changed to: ${deviceState.type}`);
+        }
+
+        // 기존 resize 로직
         windowWidth = window.innerWidth;
         centerX = windowWidth / 2;
     }, 250);
@@ -161,38 +234,29 @@ document.addEventListener('DOMContentLoaded', function () {
         const deltaX = event.clientX - centerX;
         const deltaY = event.clientY - CONFIG.centerY;
 
-        // 거리 계산
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         targetDistance = Math.min(distance / CONFIG.maxDistance, 1);
 
-        // 각도 계산
         const angleInRadians = Math.atan2(deltaY, deltaX);
         const angleInDegrees = angleInRadians * (180 / Math.PI);
         let normalizedAngle = (angleInDegrees + 90 + 360) % 360;
 
-        // ===== 회전량 제어 =====
         if (CONFIG.enableRotationLimit) {
-            // -180 ~ 180도로 변환
             if (normalizedAngle > 180) {
                 normalizedAngle = normalizedAngle - 360;
             }
 
-            // 회전량 스케일링
             normalizedAngle = normalizedAngle * CONFIG.rotationScale;
 
-            // 최대 각도 제한 (설정된 경우)
             if (CONFIG.maxRotation !== null) {
                 normalizedAngle = Math.max(-CONFIG.maxRotation, Math.min(CONFIG.maxRotation, normalizedAngle));
             }
 
-            // 다시 0-360 범위로
             normalizedAngle = (normalizedAngle + 360) % 360;
         }
-        // enableRotationLimit가 false면 normalizedAngle 그대로 사용 (자유 회전)
 
         const now = performance.now();
 
-        // 즉각 반응
         const instantResponse = normalizedAngle * CONFIG.responsiveness;
         const smoothedResponse = targetAngle * (1 - CONFIG.responsiveness);
 
@@ -207,7 +271,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // 가중 평균
         let weightedSumX = 0, weightedSumY = 0;
         const historyLength = angleHistory.length;
 
@@ -221,7 +284,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const avgAngle = Math.atan2(weightedSumY, weightedSumX) * 180 / Math.PI;
         const smoothedAngle = (avgAngle + 360) % 360;
 
-        // 예측
         if (angleHistory.length >= 3) {
             const recent = angleHistory[historyLength - 1].angle;
             const previous = angleHistory[historyLength - 2].angle;
@@ -235,7 +297,6 @@ document.addEventListener('DOMContentLoaded', function () {
             targetAngle = smoothedAngle;
         }
 
-        // 혼합
         targetAngle = targetAngle * 0.7 + normalizedAngle * 0.3;
     }
 
@@ -275,17 +336,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    /**
-     * 타원 변환 업데이트
-     * - 분산 효과
-     * - SVG 중심축 기준 역회전 (공전)
-     */
     function updateEllipseTransforms() {
         const ellipseGroups = animatedElement.querySelectorAll('.ellipse-group');
 
         const disperseFactor = (currentDistance - 0.5) * 2;
 
-        // SVG 중심점
         const svgCenterX = CONFIG.counterRotation.svgCenter.x;
         const svgCenterY = CONFIG.counterRotation.svgCenter.y;
 
@@ -294,49 +349,39 @@ document.addEventListener('DOMContentLoaded', function () {
             const originX = parseFloat(origin[0]);
             const originY = parseFloat(origin[1]);
 
-            // ===== 1. 분산 효과 (중심에서 멀어지기) =====
             const dx = originX - svgCenterX;
             const dy = originY - svgCenterY;
 
-            const scaleDivisor = 5.8;
+            const scaleDivisor = currentConfig.scale; // 반응형 스케일 사용
             const moveAmount = CONFIG.scaleRange / scaleDivisor;
 
             const translateX = dx * disperseFactor * moveAmount;
             const translateY = dy * disperseFactor * moveAmount;
 
-            // ===== 2. 회전 처리 =====
-            let rotation = -currentAngle; // 기본: 부모 회전 상쇄
+            let rotation = -currentAngle;
 
-            // 역회전 타원 (중심축 기준 공전)
             if (CONFIG.counterRotation.enabled &&
                 CONFIG.counterRotation.mode === 'orbit' &&
                 CONFIG.counterRotation.ellipses.includes(index)) {
 
-                // SVG 중심으로부터의 거리와 각도
                 const distFromCenter = Math.sqrt(dx * dx + dy * dy);
                 const angleFromCenter = Math.atan2(dy, dx) * (180 / Math.PI);
 
-                // 역회전: 중심축 기준으로 반대 방향 공전
-                // currentAngle만큼 반대로 회전
                 const counterRotationAngle = -currentAngle * 2 * CONFIG.counterRotation.speed;
                 const newAngle = (angleFromCenter + counterRotationAngle) * (Math.PI / 180);
 
-                // 새로운 위치 계산 (공전)
                 const newX = Math.cos(newAngle) * distFromCenter;
                 const newY = Math.sin(newAngle) * distFromCenter;
 
-                // 원래 위치에서 새 위치로의 변위
                 const orbitTranslateX = (newX - dx) + translateX;
                 const orbitTranslateY = (newY - dy) + translateY;
 
-                // 타원 자체는 회전하지 않음 (부모 회전만 상쇄)
                 rotation = -currentAngle;
 
-                const transformValue = `translate(${orbitTranslateX}px, ${orbitTranslateY}px) rotate(${rotation}deg)`;
+                const transformValue = `translate($${orbitTranslateX}px, $${orbitTranslateY}px) rotate(${rotation}deg)`;
                 group.style.transform = transformValue;
             } else {
-                // 일반 타원: 분산만 적용
-                const transformValue = `translate(${translateX}px, ${translateY}px) rotate(${rotation}deg)`;
+                const transformValue = `translate($${translateX}px, $${translateY}px) rotate(${rotation}deg)`;
                 group.style.transform = transformValue;
             }
         });
@@ -349,14 +394,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==============================================
 
     function animate() {
-        if (isMobile && ++frameCounter % CONFIG.mobileFrameSkip !== 0) {
+        const config = getCurrentConfig();
+
+        if ((deviceState.isMobile || deviceState.isTablet) && ++frameCounter % CONFIG.mobileFrameSkip !== 0) {
             animationFrameId = requestAnimationFrame(animate);
             return;
         }
 
-        if (isMobile) {
-            // 모바일 로직
-            currentAngle += CONFIG.mobileRotationSpeed;
+        if (deviceState.isMobile || deviceState.isTablet) {
+            // 모바일/태블릿 로직
+            currentAngle += config.rotationSpeed;
 
             const angleInRadians = currentAngle * Math.PI / 180;
             const normalizedAngle = ((currentAngle % 360) + 360) % 360;
@@ -364,11 +411,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const progress = normalizedAngle <= 180 ? normalizedAngle / 180 : (360 - normalizedAngle) / 180;
             const smoothProgress = (1 - Math.cos(progress * Math.PI)) / 2;
 
-            const radiusX = 10 * (1 + smoothProgress * 0.15);
-            const radiusY = 14 * (1 + smoothProgress * 0.2);
+            const radiusX = config.radiusX * (1 + smoothProgress * 0.15);
+            const radiusY = config.radiusY * (1 + smoothProgress * 0.2);
 
-            currentX = getCachedCos(angleInRadians) * radiusX;
-            currentY = 15 + getCachedSin(angleInRadians) * radiusY - smoothProgress * 10;
+            currentX = getCachedCos(angleInRadians) * radiusX * config.offsetMultiplier;
+            currentY = config.maxOffset.y + getCachedSin(angleInRadians) * radiusY * config.offsetMultiplier - smoothProgress * 10 * config.offsetMultiplier;
 
             const mobileProgress = normalizedAngle / 360;
             currentDistance = 0.5 + 0.5 * Math.sin(mobileProgress * Math.PI * 2);
@@ -376,12 +423,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } else {
             // 데스크톱 로직
-
-            // 거리 보간
             currentDistance += (targetDistance - currentDistance) * CONFIG.distanceEasing;
             scaleFactor = 1 + (currentDistance - 0.5) * CONFIG.scaleRange * 2;
 
-            // 각도 보간
             const distance = Math.abs(targetAngle - currentAngle);
 
             let adaptiveFactor;
@@ -407,18 +451,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
             currentAngle += step;
 
-            // 위치 계산
             const angleInRadians = currentAngle * Math.PI / 180;
             const normalizedAngle = ((currentAngle % 360) + 360) % 360;
 
             const progress = normalizedAngle <= 180 ? normalizedAngle / 180 : (360 - normalizedAngle) / 180;
             const smoothProgress = (1 - Math.cos(progress * Math.PI)) / 2;
 
-            const radiusX = 10 * (1 + smoothProgress * 0.15);
-            const radiusY = 14 * (1 + smoothProgress * 0.2);
+            const radiusX = config.radiusX * (1 + smoothProgress * 0.15);
+            const radiusY = config.radiusY * (1 + smoothProgress * 0.2);
 
             const newTargetX = getCachedCos(angleInRadians) * radiusX;
-            const newTargetY = 15 + getCachedSin(angleInRadians) * radiusY - smoothProgress * 10;
+            const newTargetY = config.maxOffset.y + getCachedSin(angleInRadians) * radiusY - smoothProgress * 10;
 
             const positionFactor = 0.10;
             currentX += (newTargetX - currentX) * positionFactor;
@@ -435,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function checkAndToggle() {
         const scrollY = window.scrollY || window.pageYOffset;
-        const boundaryCheck = isMobile ? scrollY : (scrollY + lastMouseY);
+        const boundaryCheck = deviceState.isMobile ? scrollY : (scrollY + lastMouseY);
         const shouldAnimate = boundaryCheck <= CONFIG.animationBoundary;
 
         if (shouldAnimate && !isAnimating) {
@@ -468,7 +511,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const passiveOptions = passiveSupported ? { passive: true } : false;
 
-    if (!isMobile) {
+    if (!deviceState.isMobile) {
         let mouseThrottle = null;
         const mouseMoveHandler = (event) => {
             lastMouseY = event.clientY;
@@ -487,8 +530,14 @@ document.addEventListener('DOMContentLoaded', function () {
         };
         document.addEventListener('mousemove', mouseMoveHandler, passiveOptions);
         window.addEventListener('scroll', checkAndToggle, passiveOptions);
-        window.addEventListener('resize', handleResize);
     }
+
+    window.addEventListener('resize', handleResize);
+
+    // 오리엔테이션 변경 감지 (모바일)
+    window.addEventListener('orientationchange', () => {
+        setTimeout(handleResize, 300);
+    });
 
     window.addEventListener('beforeunload', () => {
         if (animationFrameId) {
@@ -508,10 +557,14 @@ document.addEventListener('DOMContentLoaded', function () {
             targetDistance,
             currentX,
             currentY,
-            scaleFactor
+            scaleFactor,
+            deviceType: deviceState.type,
+            currentConfig
         }),
         config: CONFIG,
+        responsiveConfig: RESPONSIVE_CONFIG,
         isAnimating: () => isAnimating,
+        deviceState: deviceState,
 
         // 애니메이션 제어
         forceStart: () => {
@@ -523,8 +576,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
         },
 
-        // ===== 회전 제어 함수 =====
-        // 자유 회전 활성화
+        // 회전 제어 함수
         enableFreeRotation: () => {
             CONFIG.rotationScale = 1.0;
             CONFIG.maxRotation = null;
@@ -532,7 +584,6 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('✅ Free rotation enabled (100%, no limit)');
         },
 
-        // 제한된 회전 활성화
         enableLimitedRotation: (scale = 0.3, maxAngle = 60) => {
             CONFIG.rotationScale = scale;
             CONFIG.maxRotation = maxAngle;
@@ -540,28 +591,34 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log(`✅ Limited rotation enabled (${scale * 100}%, ±${maxAngle}°)`);
         },
 
-        // 회전량만 조절 (제한 유지)
         setRotationScale: (scale) => {
             CONFIG.rotationScale = scale;
             console.log(`Rotation scale: ${scale * 100}%`);
         },
 
-        // 최대 각도만 조절
         setMaxRotation: (angle) => {
             CONFIG.maxRotation = angle;
             console.log(`Max rotation: ±${angle}°`);
         },
 
-        // 역회전 타원 설정
         setCounterRotationEllipses: (indices) => {
             CONFIG.counterRotation.ellipses = indices;
             console.log('Counter-rotation ellipses:', indices);
         },
 
-        // 역회전 속도 조절
         setCounterRotationSpeed: (speed) => {
             CONFIG.counterRotation.speed = speed;
             console.log('Counter-rotation speed:', speed);
+        },
+
+        // 반응형 설정 변경
+        updateResponsiveConfig: (deviceType, config) => {
+            Object.assign(RESPONSIVE_CONFIG[deviceType], config);
+            if (deviceState.type === deviceType) {
+                currentConfig = getCurrentConfig();
+                updateResponsiveScale();
+            }
+            console.log(`Updated ${deviceType} config:`, RESPONSIVE_CONFIG[deviceType]);
         }
     };
 
@@ -571,17 +628,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     checkAndToggle();
 
-    console.log('🎨 Enhanced interactive background v4 initialized');
+    console.log('🎨 Responsive interactive background initialized');
     console.log('📊 Current settings:', {
-        isMobile,
+        deviceType: deviceState.type,
+        scale: currentConfig.scale,
+        blur: currentConfig.blur,
+        isMobile: deviceState.isMobile,
+        isTablet: deviceState.isTablet,
         rotationMode: CONFIG.enableRotationLimit ? 'LIMITED' : 'FREE',
         rotationScale: `${CONFIG.rotationScale * 100}%`,
-        maxRotation: CONFIG.maxRotation ? `±${CONFIG.maxRotation}°` : 'UNLIMITED',
-        counterRotating: CONFIG.counterRotation.ellipses,
-        counterRotationMode: CONFIG.counterRotation.mode
+        maxRotation: CONFIG.maxRotation ? `±${CONFIG.maxRotation}°` : 'UNLIMITED'
     });
     console.log('🛠️ Debug commands:');
+    console.log('  debugAnimation.state() - 현재 상태 확인');
+    console.log('  debugAnimation.deviceState - 디바이스 정보');
+    console.log('  debugAnimation.updateResponsiveConfig("mobile", {scale: 3.0}) - 반응형 설정 변경');
     console.log('  debugAnimation.enableFreeRotation() - 자유 회전 (100%)');
     console.log('  debugAnimation.enableLimitedRotation(0.3, 60) - 제한 회전');
-    console.log('  debugAnimation.setCounterRotationSpeed(0.5) - 역회전 속도');
 });
