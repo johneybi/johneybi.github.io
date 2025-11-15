@@ -5,6 +5,9 @@
  * 글꼴 우선순위를 시스템 폰트 스택으로 구성하여
  * 로딩 성능과 다국어 지원을 최적화
  */
+
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Prata&display=swap');
+
 :root {
   /* 한글/영문 혼용 기본 폰트 */
   --font-base: 'Wanted Sans Variable',
@@ -14,10 +17,10 @@
     sans-serif;
 
   /* 세리프 장식 폰트 */
-  --font-ivymode: 'IvyMode', serif;
+  --font-ivymode: 'IvyMode', 'Prata', serif;
 
   /* 기하학적 산세리프 폰트 */
-  --font-futura: 'Futura-100', sans-serif;
+  --font-futura: 'Futura-100', 'Jost', sans-serif;
 
   /* 영문 전용 폰트 스택 */
   --font-eng: azo-sans-web,
