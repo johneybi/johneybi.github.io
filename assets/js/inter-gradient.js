@@ -45,13 +45,17 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==============================================
     // RESPONSIVE CONFIGURATION
     // ==============================================
+    // [속도 조절 가이드]
+    // 아래의 rotationSpeed 값을 조절하여 디바이스별 회전 속도를 변경할 수 있습니다.
+    // - 값이 클수록 더 빠르게 회전합니다.
+    // - 예: 0.15 -> 0.3 (2배 빨라짐)
 
     const RESPONSIVE_CONFIG = {
         mobile: {
             scale: 3.5,
             blur: 20,
             offsetMultiplier: 0.6,
-            rotationSpeed: 0.3,
+            rotationSpeed: 0.3, // [모바일] 자동 회전 속도 (기본값: 0.3)
             maxOffset: { x: 8, y: 12 },
             radiusX: 6,
             radiusY: 10
@@ -60,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
             scale: 4.5,
             blur: 24,
             offsetMultiplier: 0.8,
-            rotationSpeed: 0.12,
+            rotationSpeed: 0.4, // [태블릿] 자동 회전 속도 (기본값: 0.12)
             maxOffset: { x: 9, y: 13 },
             radiusX: 8,
             radiusY: 12
@@ -69,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
             scale: 5.8,
             blur: 28,
             offsetMultiplier: 1,
-            rotationSpeed: 0.15,
+            rotationSpeed: 0.5, // [데스크톱] 마우스 반응 회전 민감도 (기본값: 0.15)
             maxOffset: { x: 10, y: 15 },
             radiusX: 10,
             radiusY: 14
@@ -112,17 +116,28 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==============================================
     // CONFIGURATION
     // ==============================================
+    // [고급 설정 가이드]
+    // 애니메이션의 물리적인 느낌을 미세 조정할 수 있습니다.
 
     const CONFIG = {
-        smoothingFactor: 0.06,
-        maxSpeedPerFrame: 1.2,
+        // 1. 움직임 부드러움 설정
+        smoothingFactor: 0.1,      // [중요] 마우스 따라오는 지연 시간 (낮을수록 더 부드럽고 느리게 따라옴, 0.01 ~ 0.1 추천)
+        maxSpeedPerFrame: 3,      // 한 프레임당 최대 회전 각도 제한 (너무 빠르면 어지러울 수 있음)
+
+        // 2. 물리 엔진 설정
+        springStrength: 0.015,      // 탄성 강도
+        damping: 0.75,              // 감속 계수 (관성) - 1.0에 가까울수록 미끄러지듯 오래 움직임
+        velocityDecay: 0.95,        // 속도 감쇠
+
+        // 3. 반응성 설정
+        responsiveness: 0.3,       // [중요] 즉각적인 반응성 (높을수록 마우스 움직임에 즉시 반응)
+        predictiveFactor: 0.1,      // 마우스 경로 예측 (빠른 움직임 보정)
+
+        // 4. 기타 설정
         historySize: 8,
         historyCutoff: 50,
         animationBoundary: 880,
         centerY: 440,
-        springStrength: 0.015,
-        damping: 0.92,
-        velocityDecay: 0.95,
         updateThreshold: 0.01,
         mobileFrameSkip: 2,
         cssUpdateDelay: 16,
@@ -130,9 +145,6 @@ document.addEventListener('DOMContentLoaded', function () {
         rotationScale: 1.0,
         maxRotation: null,
         enableRotationLimit: false,
-
-        responsiveness: 0.25,
-        predictiveFactor: 0.1,
 
         maxDistance: 400,
         scaleRange: 1,
