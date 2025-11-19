@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const animatedElement = document.querySelector('.interactive-svg-background');
     if (!animatedElement) return;
 
+    // Cache ellipse elements and their static data
+    let ellipseData = [];
+    const ellipseGroups = Array.from(animatedElement.querySelectorAll('.ellipse-group'));
+
     // 반응형 breakpoint 정의
     const BREAKPOINTS = {
         mobile: 768,
@@ -182,6 +186,37 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     }
 
+    // Pre-calculate ellipse data
+    const calculateEllipseData = () => {
+        const svgCenterX = CONFIG.counterRotation.svgCenter.x;
+        const svgCenterY = CONFIG.counterRotation.svgCenter.y;
+
+        ellipseData = ellipseGroups.map((group, index) => {
+            const style = window.getComputedStyle(group);
+            const origin = style.transformOrigin.split(' ');
+            const originX = parseFloat(origin[0]);
+            const originY = parseFloat(origin[1]);
+
+            const dx = originX - svgCenterX;
+            const dy = originY - svgCenterY;
+            const distFromCenter = Math.sqrt(dx * dx + dy * dy);
+            const angleFromCenter = Math.atan2(dy, dx); // Radians
+
+            return {
+                element: group,
+                index,
+                dx,
+                dy,
+                distFromCenter,
+                angleFromCenter,
+                isCounterRotating: CONFIG.counterRotation.ellipses.includes(index)
+            };
+        });
+    };
+
+    // Initialize ellipse data
+    calculateEllipseData();
+
     // 기존 handleResize를 수정하여 반응형 기능 포함
     const handleResize = debounce(() => {
         // 디바이스 타입 체크 및 업데이트
@@ -201,30 +236,10 @@ document.addEventListener('DOMContentLoaded', function () {
         // 기존 resize 로직
         windowWidth = window.innerWidth;
         centerX = windowWidth / 2;
+
+        // Re-calculate ellipse data in case layout changes affect transform-origin
+        calculateEllipseData();
     }, 250);
-
-    // ==============================================
-    // TRIGONOMETRY CACHE
-    // ==============================================
-
-    const cosCache = new Map();
-    const sinCache = new Map();
-
-    function getCachedCos(angle) {
-        const key = angle.toFixed(2);
-        if (!cosCache.has(key)) {
-            cosCache.set(key, Math.cos(angle));
-        }
-        return cosCache.get(key);
-    }
-
-    function getCachedSin(angle) {
-        const key = angle.toFixed(2);
-        if (!sinCache.has(key)) {
-            sinCache.set(key, Math.sin(angle));
-        }
-        return sinCache.get(key);
-    }
 
     // ==============================================
     // MOUSE MOVE HANDLER
@@ -277,8 +292,8 @@ document.addEventListener('DOMContentLoaded', function () {
         for (let i = 0; i < historyLength; i++) {
             const weight = Math.pow((i + 1) / historyLength, 2);
             const rad = angleHistory[i].angle * Math.PI / 180;
-            weightedSumX += getCachedCos(rad) * weight;
-            weightedSumY += getCachedSin(rad) * weight;
+            weightedSumX += Math.cos(rad) * weight;
+            weightedSumY += Math.sin(rad) * weight;
         }
 
         const avgAngle = Math.atan2(weightedSumY, weightedSumX) * 180 / Math.PI;
@@ -337,54 +352,38 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateEllipseTransforms() {
-        const ellipseGroups = animatedElement.querySelectorAll('.ellipse-group');
-
         const disperseFactor = (currentDistance - 0.5) * 2;
+        const scaleDivisor = currentConfig.scale;
+        const moveAmount = CONFIG.scaleRange / scaleDivisor;
+        const baseRotation = -currentAngle;
 
-        const svgCenterX = CONFIG.counterRotation.svgCenter.x;
-        const svgCenterY = CONFIG.counterRotation.svgCenter.y;
+        // Pre-calculate common values
+        const counterRotationAngle = -currentAngle * 2 * CONFIG.counterRotation.speed * (Math.PI / 180);
 
-        ellipseGroups.forEach((group, index) => {
-            const origin = group.style.transformOrigin.split(' ');
-            const originX = parseFloat(origin[0]);
-            const originY = parseFloat(origin[1]);
+        // Use cached data
+        for (let i = 0; i < ellipseData.length; i++) {
+            const data = ellipseData[i];
 
-            const dx = originX - svgCenterX;
-            const dy = originY - svgCenterY;
-
-            const scaleDivisor = currentConfig.scale; // 반응형 스케일 사용
-            const moveAmount = CONFIG.scaleRange / scaleDivisor;
-
-            const translateX = dx * disperseFactor * moveAmount;
-            const translateY = dy * disperseFactor * moveAmount;
-
-            let rotation = -currentAngle;
+            const translateX = data.dx * disperseFactor * moveAmount;
+            const translateY = data.dy * disperseFactor * moveAmount;
 
             if (CONFIG.counterRotation.enabled &&
                 CONFIG.counterRotation.mode === 'orbit' &&
-                CONFIG.counterRotation.ellipses.includes(index)) {
+                data.isCounterRotating) {
 
-                const distFromCenter = Math.sqrt(dx * dx + dy * dy);
-                const angleFromCenter = Math.atan2(dy, dx) * (180 / Math.PI);
+                const newAngle = data.angleFromCenter + counterRotationAngle;
 
-                const counterRotationAngle = -currentAngle * 2 * CONFIG.counterRotation.speed;
-                const newAngle = (angleFromCenter + counterRotationAngle) * (Math.PI / 180);
+                const newX = Math.cos(newAngle) * data.distFromCenter;
+                const newY = Math.sin(newAngle) * data.distFromCenter;
 
-                const newX = Math.cos(newAngle) * distFromCenter;
-                const newY = Math.sin(newAngle) * distFromCenter;
+                const orbitTranslateX = (newX - data.dx) + translateX;
+                const orbitTranslateY = (newY - data.dy) + translateY;
 
-                const orbitTranslateX = (newX - dx) + translateX;
-                const orbitTranslateY = (newY - dy) + translateY;
-
-                rotation = -currentAngle;
-
-                const transformValue = `translate($${orbitTranslateX}px, $${orbitTranslateY}px) rotate(${rotation}deg)`;
-                group.style.transform = transformValue;
+                data.element.style.transform = `translate(${orbitTranslateX}px, ${orbitTranslateY}px) rotate(${baseRotation}deg)`;
             } else {
-                const transformValue = `translate($${translateX}px, $${translateY}px) rotate(${rotation}deg)`;
-                group.style.transform = transformValue;
+                data.element.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${baseRotation}deg)`;
             }
-        });
+        }
 
         lastScaleValue = scaleFactor;
     }
@@ -394,8 +393,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==============================================
 
     function animate() {
-        const config = getCurrentConfig();
-
         if ((deviceState.isMobile || deviceState.isTablet) && ++frameCounter % CONFIG.mobileFrameSkip !== 0) {
             animationFrameId = requestAnimationFrame(animate);
             return;
@@ -403,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (deviceState.isMobile || deviceState.isTablet) {
             // 모바일/태블릿 로직
-            currentAngle += config.rotationSpeed;
+            currentAngle += currentConfig.rotationSpeed;
 
             const angleInRadians = currentAngle * Math.PI / 180;
             const normalizedAngle = ((currentAngle % 360) + 360) % 360;
@@ -411,11 +408,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const progress = normalizedAngle <= 180 ? normalizedAngle / 180 : (360 - normalizedAngle) / 180;
             const smoothProgress = (1 - Math.cos(progress * Math.PI)) / 2;
 
-            const radiusX = config.radiusX * (1 + smoothProgress * 0.15);
-            const radiusY = config.radiusY * (1 + smoothProgress * 0.2);
+            const radiusX = currentConfig.radiusX * (1 + smoothProgress * 0.15);
+            const radiusY = currentConfig.radiusY * (1 + smoothProgress * 0.2);
 
-            currentX = getCachedCos(angleInRadians) * radiusX * config.offsetMultiplier;
-            currentY = config.maxOffset.y + getCachedSin(angleInRadians) * radiusY * config.offsetMultiplier - smoothProgress * 10 * config.offsetMultiplier;
+            currentX = Math.cos(angleInRadians) * radiusX * currentConfig.offsetMultiplier;
+            currentY = currentConfig.maxOffset.y + Math.sin(angleInRadians) * radiusY * currentConfig.offsetMultiplier - smoothProgress * 10 * currentConfig.offsetMultiplier;
 
             const mobileProgress = normalizedAngle / 360;
             currentDistance = 0.5 + 0.5 * Math.sin(mobileProgress * Math.PI * 2);
@@ -457,11 +454,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const progress = normalizedAngle <= 180 ? normalizedAngle / 180 : (360 - normalizedAngle) / 180;
             const smoothProgress = (1 - Math.cos(progress * Math.PI)) / 2;
 
-            const radiusX = config.radiusX * (1 + smoothProgress * 0.15);
-            const radiusY = config.radiusY * (1 + smoothProgress * 0.2);
+            const radiusX = currentConfig.radiusX * (1 + smoothProgress * 0.15);
+            const radiusY = currentConfig.radiusY * (1 + smoothProgress * 0.2);
 
-            const newTargetX = getCachedCos(angleInRadians) * radiusX;
-            const newTargetY = config.maxOffset.y + getCachedSin(angleInRadians) * radiusY - smoothProgress * 10;
+            const newTargetX = Math.cos(angleInRadians) * radiusX;
+            const newTargetY = currentConfig.maxOffset.y + Math.sin(angleInRadians) * radiusY - smoothProgress * 10;
 
             const positionFactor = 0.10;
             currentX += (newTargetX - currentX) * positionFactor;
@@ -603,6 +600,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         setCounterRotationEllipses: (indices) => {
             CONFIG.counterRotation.ellipses = indices;
+            // Re-calculate ellipse data to update isCounterRotating flag
+            calculateEllipseData();
             console.log('Counter-rotation ellipses:', indices);
         },
 
@@ -628,7 +627,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     checkAndToggle();
 
-    console.log('🎨 Responsive interactive background initialized');
+    console.log('🎨 Responsive interactive background initialized (Optimized)');
     console.log('📊 Current settings:', {
         deviceType: deviceState.type,
         scale: currentConfig.scale,
@@ -639,10 +638,4 @@ document.addEventListener('DOMContentLoaded', function () {
         rotationScale: `${CONFIG.rotationScale * 100}%`,
         maxRotation: CONFIG.maxRotation ? `±${CONFIG.maxRotation}°` : 'UNLIMITED'
     });
-    console.log('🛠️ Debug commands:');
-    console.log('  debugAnimation.state() - 현재 상태 확인');
-    console.log('  debugAnimation.deviceState - 디바이스 정보');
-    console.log('  debugAnimation.updateResponsiveConfig("mobile", {scale: 3.0}) - 반응형 설정 변경');
-    console.log('  debugAnimation.enableFreeRotation() - 자유 회전 (100%)');
-    console.log('  debugAnimation.enableLimitedRotation(0.3, 60) - 제한 회전');
 });
