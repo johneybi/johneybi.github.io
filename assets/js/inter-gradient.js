@@ -115,6 +115,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // ==============================================
+    // OPTIMIZATION CONSTANTS
+    // ==============================================
+    const DEG_TO_RAD = Math.PI / 180;
+    const RAD_TO_DEG = 180 / Math.PI;
+    const PI2 = Math.PI * 2;
+
+    // ==============================================
     // CONFIGURATION
     // ==============================================
     // [고급 설정 가이드]
@@ -169,7 +176,11 @@ document.addEventListener('DOMContentLoaded', function () {
     let lastMouseY = 0;
     let isAnimating = false;
 
-    const angleHistory = [];
+    // Optimized Circular Buffer for Angle History
+    const angleHistory = new Float32Array(CONFIG.historySize);
+    let historyIndex = 0;
+    let historyCount = 0;
+
     let lastTargetAngle = 0;
     let angleVelocity = 0;
 
@@ -281,7 +292,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        lastMousePos = { x: currentMouseX, y: currentMouseY, time: now };
+        lastMousePos.x = currentMouseX;
+        lastMousePos.y = currentMouseY;
+        lastMousePos.time = now;
 
         // 2. Calculate Raw Target Values (Absolute)
         const deltaX = currentMouseX - centerX;
@@ -291,7 +304,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const rawTargetDistance = Math.min(distance / CONFIG.maxDistance, 1);
 
         const angleInRadians = Math.atan2(deltaY, deltaX);
-        const angleInDegrees = angleInRadians * (180 / Math.PI);
+        const angleInDegrees = angleInRadians * RAD_TO_DEG;
         let rawTargetAngle = (angleInDegrees + 90 + 360) % 360;
 
         // Apply Rotation Limits if enabled
@@ -396,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const baseRotation = -currentAngle;
 
         // Pre-calculate common values
-        const counterRotationAngle = -currentAngle * 2 * CONFIG.counterRotation.speed * (Math.PI / 180);
+        const counterRotationAngle = -currentAngle * 2 * CONFIG.counterRotation.speed * DEG_TO_RAD;
 
         // Use cached data
         for (let i = 0; i < ellipseData.length; i++) {
@@ -417,9 +430,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const orbitTranslateX = (newX - data.dx) + translateX;
                 const orbitTranslateY = (newY - data.dy) + translateY;
 
-                data.element.style.transform = `translate(${orbitTranslateX}px, ${orbitTranslateY}px) rotate(${baseRotation}deg)`;
+                // GPU Acceleration: translate3d
+                data.element.style.transform = `translate3d(${orbitTranslateX}px, ${orbitTranslateY}px, 0) rotate(${baseRotation}deg)`;
             } else {
-                data.element.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${baseRotation}deg)`;
+                // GPU Acceleration: translate3d
+                data.element.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) rotate(${baseRotation}deg)`;
             }
         }
 
@@ -440,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // 모바일/태블릿 로직
             currentAngle += currentConfig.rotationSpeed;
 
-            const angleInRadians = currentAngle * Math.PI / 180;
+            const angleInRadians = currentAngle * DEG_TO_RAD;
             const normalizedAngle = ((currentAngle % 360) + 360) % 360;
 
             const progress = normalizedAngle <= 180 ? normalizedAngle / 180 : (360 - normalizedAngle) / 180;
@@ -453,7 +468,7 @@ document.addEventListener('DOMContentLoaded', function () {
             currentY = currentConfig.maxOffset.y + Math.sin(angleInRadians) * radiusY * currentConfig.offsetMultiplier - smoothProgress * 10 * currentConfig.offsetMultiplier;
 
             const mobileProgress = normalizedAngle / 360;
-            currentDistance = 0.5 + 0.5 * Math.sin(mobileProgress * Math.PI * 2);
+            currentDistance = 0.5 + 0.5 * Math.sin(mobileProgress * PI2);
             scaleFactor = 1 + (currentDistance - 0.5) * CONFIG.scaleRange * 2;
 
         } else {
@@ -486,7 +501,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             currentAngle += step;
 
-            const angleInRadians = currentAngle * Math.PI / 180;
+            const angleInRadians = currentAngle * DEG_TO_RAD;
             const normalizedAngle = ((currentAngle % 360) + 360) % 360;
 
             const progress = normalizedAngle <= 180 ? normalizedAngle / 180 : (360 - normalizedAngle) / 180;
