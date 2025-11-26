@@ -113,6 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
     animatedElement.style.setProperty('--y-offset', `${currentY}vw`);
     animatedElement.style.setProperty('--ellipse-scale', '1');
 
+
     // ==============================================
     // CONFIGURATION
     // ==============================================
@@ -132,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // 3. 반응성 설정
         responsiveness: 0.3,       // [중요] 즉각적인 반응성 (높을수록 마우스 움직임에 즉시 반응)
         predictiveFactor: 0.1,      // 마우스 경로 예측 (빠른 움직임 보정)
+        fastMovementThreshold: 2.5, // [NEW] 빠른 움직임 감지 임계값 (px/ms) - 이 속도 이상이면 추적 일시 중지
 
         // 4. 기타 설정
         historySize: 8,
@@ -181,6 +183,12 @@ document.addEventListener('DOMContentLoaded', function () {
     let lastXValue = null;
     let lastYValue = null;
     let lastScaleValue = null;
+
+    // [NEW] Relative Tracking State
+    let trackingState = 'active'; // 'active' | 'paused'
+    let angleOffset = 0;
+    let distanceOffset = 0;
+    let lastMousePos = { x: 0, y: 0, time: 0 };
 
     // ==============================================
     // UTILITY FUNCTIONS
@@ -258,73 +266,91 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==============================================
 
     function handleMouseMove(event) {
-        const deltaX = event.clientX - centerX;
-        const deltaY = event.clientY - CONFIG.centerY;
+        const now = performance.now();
+        const currentMouseX = event.clientX;
+        const currentMouseY = event.clientY;
+
+        // 1. Calculate Mouse Velocity
+        let velocity = 0;
+        if (lastMousePos.time > 0) {
+            const dx = currentMouseX - lastMousePos.x;
+            const dy = currentMouseY - lastMousePos.y;
+            const dt = now - lastMousePos.time;
+            if (dt > 0) {
+                velocity = Math.sqrt(dx * dx + dy * dy) / dt; // px/ms
+            }
+        }
+
+        lastMousePos = { x: currentMouseX, y: currentMouseY, time: now };
+
+        // 2. Calculate Raw Target Values (Absolute)
+        const deltaX = currentMouseX - centerX;
+        const deltaY = currentMouseY - CONFIG.centerY;
 
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        targetDistance = Math.min(distance / CONFIG.maxDistance, 1);
+        const rawTargetDistance = Math.min(distance / CONFIG.maxDistance, 1);
 
         const angleInRadians = Math.atan2(deltaY, deltaX);
         const angleInDegrees = angleInRadians * (180 / Math.PI);
-        let normalizedAngle = (angleInDegrees + 90 + 360) % 360;
+        let rawTargetAngle = (angleInDegrees + 90 + 360) % 360;
 
+        // Apply Rotation Limits if enabled
         if (CONFIG.enableRotationLimit) {
-            if (normalizedAngle > 180) {
-                normalizedAngle = normalizedAngle - 360;
-            }
-
-            normalizedAngle = normalizedAngle * CONFIG.rotationScale;
-
+            if (rawTargetAngle > 180) rawTargetAngle -= 360;
+            rawTargetAngle *= CONFIG.rotationScale;
             if (CONFIG.maxRotation !== null) {
-                normalizedAngle = Math.max(-CONFIG.maxRotation, Math.min(CONFIG.maxRotation, normalizedAngle));
+                rawTargetAngle = Math.max(-CONFIG.maxRotation, Math.min(CONFIG.maxRotation, rawTargetAngle));
             }
-
-            normalizedAngle = (normalizedAngle + 360) % 360;
+            rawTargetAngle = (rawTargetAngle + 360) % 360;
         }
 
-        const now = performance.now();
-
-        const instantResponse = normalizedAngle * CONFIG.responsiveness;
-        const smoothedResponse = targetAngle * (1 - CONFIG.responsiveness);
-
-        angleHistory.push({ angle: normalizedAngle, timestamp: now });
-
-        if (angleHistory.length > CONFIG.historySize) {
-            angleHistory.shift();
-        }
-
-        if (angleHistory.length < 2) {
-            targetAngle = instantResponse + smoothedResponse;
-            return;
-        }
-
-        let weightedSumX = 0, weightedSumY = 0;
-        const historyLength = angleHistory.length;
-
-        for (let i = 0; i < historyLength; i++) {
-            const weight = Math.pow((i + 1) / historyLength, 2);
-            const rad = angleHistory[i].angle * Math.PI / 180;
-            weightedSumX += Math.cos(rad) * weight;
-            weightedSumY += Math.sin(rad) * weight;
-        }
-
-        const avgAngle = Math.atan2(weightedSumY, weightedSumX) * 180 / Math.PI;
-        const smoothedAngle = (avgAngle + 360) % 360;
-
-        if (angleHistory.length >= 3) {
-            const recent = angleHistory[historyLength - 1].angle;
-            const previous = angleHistory[historyLength - 2].angle;
-            let velocity = recent - previous;
-
-            if (velocity > 180) velocity -= 360;
-            if (velocity < -180) velocity += 360;
-
-            targetAngle = smoothedAngle + velocity * CONFIG.predictiveFactor;
+        // 3. Handle Fast Movement (Pause & Resume Logic)
+        if (velocity > CONFIG.fastMovementThreshold) {
+            // Too fast! Pause tracking.
+            if (trackingState === 'active') {
+                console.log('🚀 Fast movement detected! Pausing tracking.');
+                trackingState = 'paused';
+            }
+            // While paused, we DO NOT update targetAngle/targetDistance.
+            // The animation will continue to its *last known* target, effectively "ignoring" the fast whip.
+            return; 
         } else {
-            targetAngle = smoothedAngle;
+            // Speed is normal.
+            if (trackingState === 'paused') {
+                // Resume! Calculate offsets to maintain relative position.
+                console.log('✨ Movement slowed. Resuming tracking with relative offset.');
+                
+                // Calculate the difference between where we ARE (or were going) and where the mouse IS.
+                // We want: newTarget = rawTarget + offset
+                // So: offset = currentTarget - rawTarget
+                
+                // For Angle: Handle wrap-around carefully
+                let angleDiff = targetAngle - rawTargetAngle;
+                // Normalize angleDiff to -180 ~ 180
+                while (angleDiff > 180) angleDiff -= 360;
+                while (angleDiff < -180) angleDiff += 360;
+                
+                angleOffset = angleDiff;
+                distanceOffset = targetDistance - rawTargetDistance;
+                
+                trackingState = 'active';
+            }
         }
 
-        targetAngle = targetAngle * 0.7 + normalizedAngle * 0.3;
+        // 4. Apply Offsets (Relative Tracking)
+        if (trackingState === 'active') {
+            let newTargetAngle = rawTargetAngle + angleOffset;
+            let newTargetDistance = rawTargetDistance + distanceOffset;
+
+            // Normalize Angle
+            newTargetAngle = (newTargetAngle + 360) % 360;
+            
+            // Clamp Distance
+            newTargetDistance = Math.max(0, Math.min(1, newTargetDistance));
+
+            targetAngle = newTargetAngle;
+            targetDistance = newTargetDistance;
+        }
     }
 
     // ==============================================
