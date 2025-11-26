@@ -89,5 +89,8 @@
 {{ partial "home/profile.html" . }}
 {{ end }}
 
+{{ $js := resources.Get "js/index-animations.js" | js.Build | minify }}
+<script src="{{ $js.RelPermalink }}" defer></script>
+
 
 {{ end }}
