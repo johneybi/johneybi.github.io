@@ -1,67 +1,261 @@
 {{ $disableImageOptimization := .Site.Params.disableImageOptimization | default false }}
 
-{{ $interGradient := resources.Get "js/inter-gradient.js" }}
-{{ if $interGradient }}
-{{ $interGradient = $interGradient | js.Build | minify | fingerprint }}
-<script src="{{ $interGradient.RelPermalink }}" integrity="{{ $interGradient.Data.Integrity }}"></script> {{/* defer 제거
-*/}}
-{{ end }}
-
 <div class="full-width-bg overflow-hidden relative h-[560px] md:h-[680px] xl:h-[880px]">
   <div class="absolute inset-0 herobase"></div>
 
-  <svg width="825" height="514" viewBox="-1000 -900 4474 3541" fill="none" xmlns="http://www.w3.org/2000/svg"
-    class="interactive-svg-background" aria-hidden="true" role="presentation">
+  <canvas width="825" height="514" class="interactive-canvas-background" aria-hidden="true" role="presentation"></canvas>
+  <script>
+    (() => {
+      const canvas = document.currentScript.previousElementSibling;
+      if (!canvas || !canvas.classList.contains('interactive-canvas-background')) return;
 
-    <!-- 필터 정의: 선택적 내부 블러 효과 -->
-    <defs>
-      <filter id="inner-blur" x="-50%" y="-50%" width="200%" height="200%">
-        <!-- stdDeviation="0"이므로 현재 비활성 상태 (필요시 값 증가) -->
-        <feGaussianBlur stdDeviation="0" />
-      </filter>
-    </defs>
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-    <!-- 필터 적용 그룹 -->
-    <g filter="url(#inner-blur)">
+      const VIEWBOX = { x: -1000, y: -900, width: 4474, height: 3541 };
+      const SVG_CENTER = { x: 1237, y: 870.5 };
+      const BREAKPOINTS = { mobile: 768, tablet: 1024 };
+      const DEG_TO_RAD = Math.PI / 180;
+      const PI2 = Math.PI * 2;
 
-      <!-- Layer 1: 분홍-마젠타 계열 타원 -->
-      <g class="ellipse-group"
-        style="transform-origin: 899px 557px; transform: rotate(calc(var(--mouse-angle, 0deg) * -1))">
-        <ellipse cx="899" cy="557" rx="900" ry="601" fill="#B63C8E" opacity="0.7" />
-      </g>
+      const ELLIPSES = [
+        { cx: 899, cy: 557, rx: 900, ry: 601, color: '#B63C8E', opacity: 0.7 },
+        { cx: 1308, cy: 785, rx: 656, ry: 712, color: '#A89080', opacity: 0.7 },
+        { cx: 1627.14, cy: 316.55, rx: 550, ry: 320, color: '#FC6B3F', opacity: 0.8 },
+        { cx: 1032.5, cy: 445.5, rx: 554.5, ry: 339.5, color: '#FA292C', opacity: 0.8 },
+        { cx: 498, cy: 975.5, rx: 567, ry: 209.5, color: '#406D82', opacity: 0.8 },
+        { cx: 441.985, cy: 958.434, rx: 786.985, ry: 316.434, color: '#415E80', opacity: 0.7 }
+      ];
 
-      <!-- Layer 2: 베이지-브라운 계열 타원 -->
-      <g class="ellipse-group"
-        style="transform-origin: 1308px 785px; transform: rotate(calc(var(--mouse-angle, 0deg) * -1))">
-        <ellipse cx="1308" cy="785" rx="656" ry="712" fill="#A89080" opacity="0.7" />
-      </g>
+      const RESPONSIVE = {
+        mobile: { scale: 3.5, blur: 20, offsetMultiplier: 0.55, rotationSpeed: 0.28, maxOffset: { x: 6.5, y: 10.5 }, radiusX: 5.5, radiusY: 8.5, renderScale: 0.72, padding: 84 },
+        tablet: { scale: 4.5, blur: 24, offsetMultiplier: 0.72, rotationSpeed: 0.36, maxOffset: { x: 8, y: 11.5 }, radiusX: 7, radiusY: 10.5, renderScale: 0.66, padding: 76 },
+        desktop: { scale: 5.8, blur: 28, offsetMultiplier: 1, rotationSpeed: 0.5, maxOffset: { x: 10, y: 15 }, radiusX: 10, radiusY: 14, renderScale: 0.58, padding: 68 }
+      };
 
-      <!-- Layer 3: 오렌지 계열 타원 -->
-      <g class="ellipse-group"
-        style="transform-origin: 1627.14px 316.55px; transform: rotate(calc(var(--mouse-angle, 0deg) * -1))">
-        <ellipse cx="1627.14" cy="316.55" rx="550" ry="320" fill="#FC6B3F" opacity="0.8" />
-      </g>
+      const MOTION = {
+        smoothingFactor: 0.1,
+        maxSpeedPerFrame: 3,
+        damping: 0.82,
+        fastMovementThreshold: 2.5,
+        centerY: 440,
+        maxDistance: 400,
+        scaleRange: 1,
+        distanceEasing: 0.12
+      };
 
-      <!-- Layer 4: 레드 계열 타원 -->
-      <g class="ellipse-group"
-        style="transform-origin: 1032.5px 445.5px; transform: rotate(calc(var(--mouse-angle, 0deg) * -1))">
-        <ellipse cx="1032.5" cy="445.5" rx="554.5" ry="339.5" fill="#FA292C" opacity="0.8" />
-      </g>
+      const sharpLayer = document.createElement('canvas');
+      const sharpCtx = sharpLayer.getContext('2d');
+      if (!sharpCtx) return;
+      let renderSceneCenter = { x: 0, y: 0 };
 
-      <!-- Layer 5: 청록 계열 타원 -->
-      <g class="ellipse-group"
-        style="transform-origin: 498px 975.5px; transform: rotate(calc(var(--mouse-angle, 0deg) * -1))">
-        <ellipse cx="498" cy="975.5" rx="567" ry="209.5" fill="#406D82" opacity="0.8" />
-      </g>
+      const getDeviceType = () => {
+        const width = window.innerWidth;
+        if (width <= BREAKPOINTS.mobile) return 'mobile';
+        if (width <= BREAKPOINTS.tablet) return 'tablet';
+        return 'desktop';
+      };
 
-      <!-- Layer 6: 다크 블루 계열 타원 -->
-      <g class="ellipse-group"
-        style="transform-origin: 441.985px 958.434px; transform: rotate(calc(var(--mouse-angle, 0deg) * -1))">
-        <ellipse cx="441.985" cy="958.434" rx="786.985" ry="316.434" fill="#415E80" opacity="0.7" />
-      </g>
+      const mapX = (x, width) => ((x - VIEWBOX.x) / VIEWBOX.width) * width;
+      const mapY = (y, height) => ((y - VIEWBOX.y) / VIEWBOX.height) * height;
 
-    </g>
-  </svg>
+      const ellipseState = [];
+      let deviceType = getDeviceType();
+      let currentConfig = RESPONSIVE[deviceType];
+      let currentAngle = 0;
+      let targetAngle = 0;
+      let currentDistance = 0.5;
+      let targetDistance = 0.5;
+      let currentX = currentConfig.maxOffset.x;
+      let currentY = currentConfig.maxOffset.y;
+      let angleVelocity = 0;
+      let lastMousePos = { x: 0, y: 0, time: 0 };
+      let trackingState = 'active';
+      let angleOffset = 0;
+      let distanceOffset = 0;
+      let pointerSeen = false;
+      let rafId = null;
+      let centerX = window.innerWidth / 2;
+
+      const normalizeAngleDelta = (fromAngle, toAngle) => {
+        let delta = toAngle - fromAngle;
+        if (delta > 180) delta -= 360;
+        if (delta < -180) delta += 360;
+        return delta;
+      };
+
+      const rebuildScene = () => {
+        deviceType = getDeviceType();
+        currentConfig = RESPONSIVE[deviceType];
+        centerX = window.innerWidth / 2;
+
+        const innerWidth = Math.max(260, Math.round(825 * currentConfig.renderScale));
+        const innerHeight = Math.max(160, Math.round(514 * currentConfig.renderScale));
+        const padding = currentConfig.padding;
+        canvas.width = innerWidth;
+        canvas.height = innerHeight;
+        sharpLayer.width = innerWidth + padding * 2;
+        sharpLayer.height = innerHeight + padding * 2;
+
+        canvas.style.setProperty('--responsive-scale', String(currentConfig.scale));
+
+        ellipseState.length = 0;
+        for (let i = 0; i < ELLIPSES.length; i++) {
+          const ellipse = ELLIPSES[i];
+          const x = padding + mapX(ellipse.cx, innerWidth);
+          const y = padding + mapY(ellipse.cy, innerHeight);
+          const sceneX = padding + mapX(SVG_CENTER.x, innerWidth);
+          const sceneY = padding + mapY(SVG_CENTER.y, innerHeight);
+          renderSceneCenter = { x: sceneX, y: sceneY };
+
+          ellipseState.push({
+            ...ellipse,
+            x,
+            y,
+            rxScaled: (ellipse.rx / VIEWBOX.width) * innerWidth,
+            ryScaled: (ellipse.ry / VIEWBOX.height) * innerHeight,
+            dx: x - sceneX,
+            dy: y - sceneY
+          });
+        }
+      };
+
+      const drawEllipse = (target, ellipse, centerXValue, centerYValue) => {
+        target.save();
+        target.translate(centerXValue, centerYValue);
+        target.beginPath();
+        target.ellipse(0, 0, ellipse.rxScaled, ellipse.ryScaled, 0, 0, PI2);
+        target.fillStyle = ellipse.color;
+        target.globalAlpha = ellipse.opacity;
+        target.fill();
+        target.restore();
+      };
+
+      const updateTargetsFromPointer = (event) => {
+        const now = performance.now();
+        let velocity = 0;
+
+        if (lastMousePos.time > 0) {
+          const dx = event.clientX - lastMousePos.x;
+          const dy = event.clientY - lastMousePos.y;
+          const dt = now - lastMousePos.time;
+          if (dt > 0) velocity = Math.sqrt(dx * dx + dy * dy) / dt;
+        }
+
+        lastMousePos = { x: event.clientX, y: event.clientY, time: now };
+        pointerSeen = true;
+
+        const deltaX = event.clientX - centerX;
+        const deltaY = event.clientY - MOTION.centerY;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const rawTargetDistance = Math.min(distance / MOTION.maxDistance, 1);
+        const rawTargetAngle = ((Math.atan2(deltaY, deltaX) * 180 / Math.PI) + 450) % 360;
+
+        if (velocity > MOTION.fastMovementThreshold) {
+          trackingState = 'paused';
+          return;
+        }
+
+        if (trackingState === 'paused') {
+          angleOffset = normalizeAngleDelta(rawTargetAngle, targetAngle);
+          distanceOffset = targetDistance - rawTargetDistance;
+          trackingState = 'active';
+        }
+
+        targetAngle = (rawTargetAngle + angleOffset + 360) % 360;
+        targetDistance = Math.max(0, Math.min(1, rawTargetDistance + distanceOffset));
+      };
+
+      const render = () => {
+        if (deviceType === 'mobile' || deviceType === 'tablet') {
+          currentAngle += currentConfig.rotationSpeed;
+
+          const radians = currentAngle * DEG_TO_RAD;
+          const normalizedAngle = ((currentAngle % 360) + 360) % 360;
+          const progress = normalizedAngle <= 180 ? normalizedAngle / 180 : (360 - normalizedAngle) / 180;
+          const smoothProgress = (1 - Math.cos(progress * Math.PI)) / 2;
+          const radiusX = currentConfig.radiusX * (1 + smoothProgress * 0.15);
+          const radiusY = currentConfig.radiusY * (1 + smoothProgress * 0.2);
+
+          currentX = Math.cos(radians) * radiusX * currentConfig.offsetMultiplier;
+          currentY = currentConfig.maxOffset.y + Math.sin(radians) * radiusY * currentConfig.offsetMultiplier - smoothProgress * 10 * currentConfig.offsetMultiplier;
+          currentDistance = 0.5 + 0.5 * Math.sin((normalizedAngle / 360) * PI2);
+        } else {
+          currentDistance += (targetDistance - currentDistance) * MOTION.distanceEasing;
+
+          const distance = Math.abs(normalizeAngleDelta(currentAngle, targetAngle));
+          let adaptiveFactor = MOTION.smoothingFactor;
+          if (distance > 90) adaptiveFactor = 0.15;
+          else if (distance > 45) adaptiveFactor = 0.10;
+          else if (distance > 20) adaptiveFactor = 0.08;
+
+          const deltaAngle = normalizeAngleDelta(currentAngle, targetAngle);
+          angleVelocity = (angleVelocity + deltaAngle * 0.01) * MOTION.damping;
+
+          let step = deltaAngle * adaptiveFactor + angleVelocity;
+          if (step > MOTION.maxSpeedPerFrame) step = MOTION.maxSpeedPerFrame;
+          if (step < -MOTION.maxSpeedPerFrame) step = -MOTION.maxSpeedPerFrame;
+          currentAngle += step;
+
+          const radians = currentAngle * DEG_TO_RAD;
+          const normalizedAngle = ((currentAngle % 360) + 360) % 360;
+          const progress = normalizedAngle <= 180 ? normalizedAngle / 180 : (360 - normalizedAngle) / 180;
+          const smoothProgress = (1 - Math.cos(progress * Math.PI)) / 2;
+          const radiusX = currentConfig.radiusX * (1 + smoothProgress * 0.15);
+          const radiusY = currentConfig.radiusY * (1 + smoothProgress * 0.2);
+          const targetXValue = Math.cos(radians) * radiusX;
+          const targetYValue = currentConfig.maxOffset.y + Math.sin(radians) * radiusY - smoothProgress * 10;
+
+          currentX += (targetXValue - currentX) * 0.12;
+          currentY += (targetYValue - currentY) * 0.12;
+        }
+
+        const disperseFactor = (currentDistance - 0.5) * 2;
+        const moveAmount = MOTION.scaleRange / currentConfig.scale;
+        const rotation = currentAngle * DEG_TO_RAD;
+        const cos = Math.cos(rotation);
+        const sin = Math.sin(rotation);
+        const sceneX = renderSceneCenter.x;
+        const sceneY = renderSceneCenter.y;
+
+        sharpCtx.clearRect(0, 0, sharpLayer.width, sharpLayer.height);
+        sharpCtx.globalCompositeOperation = 'source-over';
+
+        for (let i = 0; i < ellipseState.length; i++) {
+          const ellipse = ellipseState[i];
+          const translateX = ellipse.dx * disperseFactor * moveAmount;
+          const translateY = ellipse.dy * disperseFactor * moveAmount;
+          const orbitX = ellipse.dx + translateX;
+          const orbitY = ellipse.dy + translateY;
+          const rotatedX = orbitX * cos - orbitY * sin;
+          const rotatedY = orbitX * sin + orbitY * cos;
+
+          drawEllipse(sharpCtx, ellipse, sceneX + rotatedX, sceneY + rotatedY);
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.filter = `blur(${currentConfig.blur * currentConfig.renderScale}px)`;
+        ctx.drawImage(sharpLayer, -currentConfig.padding, -currentConfig.padding);
+        ctx.filter = 'none';
+
+        canvas.style.setProperty('--x-offset', `${currentX}vw`);
+        canvas.style.setProperty('--y-offset', `${currentY}vw`);
+
+        rafId = requestAnimationFrame(render);
+      };
+
+      rebuildScene();
+      canvas.classList.add('is-rendered');
+
+      document.addEventListener('mousemove', updateTargetsFromPointer, { passive: true });
+      window.addEventListener('resize', rebuildScene);
+      window.addEventListener('beforeunload', () => {
+        if (rafId) cancelAnimationFrame(rafId);
+      });
+
+      rafId = requestAnimationFrame(render);
+    })();
+  </script>
 
   <div class="hero-container">
     <div class="flex flex-col sm:flex-row justify-between items-center w-full h-full">
@@ -104,7 +298,7 @@
     <div class="mx-auto max-w-7xl p-0">
       <div class="relative sm:overflow-hidden">
           
-          기존 이미지 변수들 유지 (표시는 안하지만 변수 오류 방지)
+          {{/* Keep image variables initialized to avoid downstream template errors. */}}
           {{ $homepageImage := "" }}
           {{ with .Site.Params.defaultBackgroundImage }}
             {{ if or (strings.HasPrefix . "http:") (strings.HasPrefix . "https:") }}

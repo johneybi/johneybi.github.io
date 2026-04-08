@@ -135,11 +135,51 @@ body {
   z-index: 2;
 }
 
+.interactive-canvas-background {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 825px;
+  height: 514px;
+  display: block;
+  background:
+    radial-gradient(ellipse 28% 18% at 42% 34%, rgba(182, 60, 142, 0.72) 0%, rgba(182, 60, 142, 0.44) 34%, rgba(182, 60, 142, 0) 72%),
+    radial-gradient(ellipse 22% 24% at 52% 45%, rgba(168, 144, 128, 0.68) 0%, rgba(168, 144, 128, 0.4) 36%, rgba(168, 144, 128, 0) 74%),
+    radial-gradient(ellipse 19% 13% at 62% 30%, rgba(252, 107, 63, 0.78) 0%, rgba(252, 107, 63, 0.48) 34%, rgba(252, 107, 63, 0) 72%),
+    radial-gradient(ellipse 20% 14% at 46% 34%, rgba(250, 41, 44, 0.8) 0%, rgba(250, 41, 44, 0.5) 35%, rgba(250, 41, 44, 0) 74%),
+    radial-gradient(ellipse 21% 10% at 34% 52%, rgba(64, 109, 130, 0.78) 0%, rgba(64, 109, 130, 0.46) 36%, rgba(64, 109, 130, 0) 74%),
+    radial-gradient(ellipse 26% 14% at 31% 51%, rgba(65, 94, 128, 0.72) 0%, rgba(65, 94, 128, 0.42) 38%, rgba(65, 94, 128, 0) 76%);
+
+  --base-scale: 5.8;
+  --mobile-scale: 3.5;
+  --tablet-scale: 4.5;
+
+  transform:
+    translate3d(calc(-50% + var(--x-offset, 0vw)),
+      calc(-50% + var(--y-offset, 0vw)),
+      0) scale(var(--responsive-scale, var(--base-scale)));
+
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  contain: layout style paint;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.interactive-canvas-background.is-rendered {
+  background: transparent;
+}
+
 /* 태블릿 반응형 */
 @media (max-width: 1024px) {
   .interactive-svg-background {
     --responsive-scale: var(--tablet-scale);
     --responsive-blur: 24px;
+  }
+
+  .interactive-canvas-background {
+    --responsive-scale: var(--tablet-scale);
   }
 }
 
@@ -149,6 +189,10 @@ body {
     --responsive-scale: var(--mobile-scale);
     --responsive-blur: var(--mobile-blur);
   }
+
+  .interactive-canvas-background {
+    --responsive-scale: var(--mobile-scale);
+  }
 }
 
 /* 작은 모바일 */
@@ -156,6 +200,10 @@ body {
   .interactive-svg-background {
     --responsive-scale: 2.8;
     --responsive-blur: 16px;
+  }
+
+  .interactive-canvas-background {
+    --responsive-scale: 2.8;
   }
 }
 
