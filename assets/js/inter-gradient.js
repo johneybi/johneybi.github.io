@@ -173,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==============================================
 
     let animationFrameId = null;
+    let inputFrameId = null;
     let lastMouseY = 0;
     let isAnimating = false;
 
@@ -200,6 +201,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let angleOffset = 0;
     let distanceOffset = 0;
     let lastMousePos = { x: 0, y: 0, time: 0 };
+    let pendingMouseInput = null;
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     // ==============================================
     // UTILITY FUNCTIONS
@@ -215,6 +218,34 @@ document.addEventListener('DOMContentLoaded', function () {
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
         };
+    }
+
+    function stopAnimation() {
+        isAnimating = false;
+
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+    }
+
+    function startAnimation() {
+        if (isAnimating || document.hidden || reducedMotionQuery.matches) return;
+
+        isAnimating = true;
+        animationFrameId = requestAnimationFrame(animate);
+    }
+
+    function isWithinAnimationBoundary(scrollY = window.scrollY || window.pageYOffset, mouseY = lastMouseY) {
+        const boundaryCheck = deviceState.isMobile ? scrollY : (scrollY + mouseY);
+        return boundaryCheck <= CONFIG.animationBoundary;
+    }
+
+    function normalizeAngleDelta(fromAngle, toAngle) {
+        let delta = toAngle - fromAngle;
+        if (delta > 180) delta -= 360;
+        if (delta < -180) delta += 360;
+        return delta;
     }
 
     // Pre-calculate ellipse data
@@ -338,10 +369,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // So: offset = currentTarget - rawTarget
                 
                 // For Angle: Handle wrap-around carefully
-                let angleDiff = targetAngle - rawTargetAngle;
-                // Normalize angleDiff to -180 ~ 180
-                while (angleDiff > 180) angleDiff -= 360;
-                while (angleDiff < -180) angleDiff += 360;
+                let angleDiff = normalizeAngleDelta(rawTargetAngle, targetAngle);
                 
                 angleOffset = angleDiff;
                 distanceOffset = targetDistance - rawTargetDistance;
@@ -441,11 +469,27 @@ document.addEventListener('DOMContentLoaded', function () {
         lastScaleValue = scaleFactor;
     }
 
+    function hasDesktopAnimationSettled(targetPositionX, targetPositionY) {
+        const angleDelta = Math.abs(normalizeAngleDelta(currentAngle, targetAngle));
+        const distanceDelta = Math.abs(targetDistance - currentDistance);
+        const positionDeltaX = Math.abs(targetPositionX - currentX);
+        const positionDeltaY = Math.abs(targetPositionY - currentY);
+
+        return angleDelta < 0.05 &&
+            distanceDelta < 0.001 &&
+            Math.abs(angleVelocity) < 0.01 &&
+            positionDeltaX < 0.01 &&
+            positionDeltaY < 0.01 &&
+            !pendingMouseInput;
+    }
+
     // ==============================================
     // ANIMATION LOOP
     // ==============================================
 
     function animate() {
+        if (!isAnimating) return;
+
         if ((deviceState.isMobile || deviceState.isTablet) && ++frameCounter % CONFIG.mobileFrameSkip !== 0) {
             animationFrameId = requestAnimationFrame(animate);
             return;
@@ -476,7 +520,7 @@ document.addEventListener('DOMContentLoaded', function () {
             currentDistance += (targetDistance - currentDistance) * CONFIG.distanceEasing;
             scaleFactor = 1 + (currentDistance - 0.5) * CONFIG.scaleRange * 2;
 
-            const distance = Math.abs(targetAngle - currentAngle);
+            const distance = Math.abs(normalizeAngleDelta(currentAngle, targetAngle));
 
             let adaptiveFactor;
             if (distance > 90) {
@@ -489,9 +533,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 adaptiveFactor = CONFIG.smoothingFactor;
             }
 
-            let deltaAngle = targetAngle - currentAngle;
-            if (deltaAngle > 180) deltaAngle -= 360;
-            if (deltaAngle < -180) deltaAngle += 360;
+            let deltaAngle = normalizeAngleDelta(currentAngle, targetAngle);
 
             const acceleration = deltaAngle * 0.01;
             angleVelocity = (angleVelocity + acceleration) * CONFIG.damping;
@@ -516,6 +558,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const positionFactor = 0.10;
             currentX += (newTargetX - currentX) * positionFactor;
             currentY += (newTargetY - currentY) * positionFactor;
+
+            if (hasDesktopAnimationSettled(newTargetX, newTargetY)) {
+                updateCSS();
+                stopAnimation();
+                return;
+            }
         }
 
         updateCSS();
@@ -526,7 +574,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ANIMATION CONTROL
     // ==============================================
 
-    function checkAndToggle() {
+    function legacyCheckAndToggle() {
         const scrollY = window.scrollY || window.pageYOffset;
         const boundaryCheck = deviceState.isMobile ? scrollY : (scrollY + lastMouseY);
         const shouldAnimate = boundaryCheck <= CONFIG.animationBoundary;
@@ -543,6 +591,45 @@ document.addEventListener('DOMContentLoaded', function () {
                 animationFrameId = null;
             }
         }
+    }
+
+    function checkAndToggle() {
+        const shouldAnimate = isWithinAnimationBoundary();
+
+        if (document.hidden || reducedMotionQuery.matches) {
+            stopAnimation();
+            return;
+        }
+
+        if (!shouldAnimate && isAnimating) {
+            stopAnimation();
+        } else if (shouldAnimate && (deviceState.isMobile || deviceState.isTablet) && !isAnimating) {
+            startAnimation();
+        }
+    }
+
+    function flushPendingMouseInput() {
+        inputFrameId = null;
+
+        if (!pendingMouseInput || document.hidden || reducedMotionQuery.matches) return;
+        if (!isWithinAnimationBoundary()) {
+            pendingMouseInput = null;
+            return;
+        }
+
+        handleMouseMove(pendingMouseInput);
+        pendingMouseInput = null;
+        startAnimation();
+    }
+
+    function scheduleMouseInput(event) {
+        pendingMouseInput = {
+            clientX: event.clientX,
+            clientY: event.clientY
+        };
+
+        if (inputFrameId !== null) return;
+        inputFrameId = requestAnimationFrame(flushPendingMouseInput);
     }
 
     // ==============================================
@@ -562,19 +649,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const passiveOptions = passiveSupported ? { passive: true } : false;
 
     if (!deviceState.isMobile) {
-        let mouseThrottle = null;
         const mouseMoveHandler = (event) => {
             lastMouseY = event.clientY;
             const scrollY = window.scrollY || window.pageYOffset;
             const absoluteMouseY = scrollY + event.clientY;
 
             if (absoluteMouseY <= CONFIG.animationBoundary) {
-                handleMouseMove(event);
-
-                if (mouseThrottle) return;
-                mouseThrottle = setTimeout(() => {
-                    mouseThrottle = null;
-                }, 16);
+                scheduleMouseInput(event);
+            } else {
+                pendingMouseInput = null;
             }
             checkAndToggle();
         };
@@ -589,10 +672,26 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(handleResize, 300);
     });
 
-    window.addEventListener('beforeunload', () => {
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            stopAnimation();
+            if (inputFrameId) {
+                cancelAnimationFrame(inputFrameId);
+                inputFrameId = null;
+            }
+            return;
         }
+
+        checkAndToggle();
+    });
+
+    reducedMotionQuery.addEventListener('change', () => {
+        checkAndToggle();
+    });
+
+    window.addEventListener('beforeunload', () => {
+        stopAnimation();
+        if (inputFrameId) cancelAnimationFrame(inputFrameId);
     });
 
     // ==============================================
