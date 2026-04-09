@@ -165,8 +165,7 @@ body {
  */
 .interactive-svg-background g g {
   transform-origin: center;
-  transform:
-    rotate(calc(var(--mouse-angle, 0deg) * -1)) scale(var(--ellipse-scale, 1));
+  transform: rotate(calc(var(--mouse-angle, 0deg) * -1));
 }
 
 /**
@@ -225,20 +224,6 @@ body {
   mix-blend-mode: color-burn;
   opacity: 0.3;
   z-index: 5;
-}
-
-/**
- * ==============================================
- * MOUSE CAPTURE AREA
- * ==============================================
- * 마우스 이벤트 캡처용 투명 레이어
- * 다른 배경 요소들보다 높은 z-index로 이벤트 우선 처리
- */
-#mouse-capture-area {
-  position: absolute;
-  inset: 0;
-  /* top, right, bottom, left: 0의 단축 표기 */
-  z-index: 99;
 }
 
 /**
