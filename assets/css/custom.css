@@ -94,7 +94,8 @@ body {
  * 3. pointer-events: none으로 이벤트 처리 부담 제거
  * 4. scale(5.8) + blur(32px)로 저해상도 SVG를 부드럽게 확대
  */
-.interactive-svg-background {
+.interactive-svg-background,
+.interactive-gradient-canvas {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -135,9 +136,27 @@ body {
   z-index: 2;
 }
 
+.interactive-gradient-canvas {
+  display: none;
+  filter: none;
+}
+
+.gradient-renderer-webgl .interactive-gradient-canvas {
+  display: block;
+}
+
+.gradient-renderer-webgl .interactive-svg-background {
+  display: none;
+}
+
+.gradient-renderer-svg .interactive-gradient-canvas {
+  display: none;
+}
+
 /* 태블릿 반응형 */
 @media (max-width: 1024px) {
-  .interactive-svg-background {
+  .interactive-svg-background,
+  .interactive-gradient-canvas {
     --responsive-scale: var(--tablet-scale);
     --responsive-blur: 24px;
   }
@@ -145,7 +164,8 @@ body {
 
 /* 모바일 반응형 */
 @media (max-width: 768px) {
-  .interactive-svg-background {
+  .interactive-svg-background,
+  .interactive-gradient-canvas {
     --responsive-scale: var(--mobile-scale);
     --responsive-blur: var(--mobile-blur);
   }
@@ -153,7 +173,8 @@ body {
 
 /* 작은 모바일 */
 @media (max-width: 480px) {
-  .interactive-svg-background {
+  .interactive-svg-background,
+  .interactive-gradient-canvas {
     --responsive-scale: 2.8;
     --responsive-blur: 16px;
   }
